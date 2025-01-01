@@ -11,7 +11,7 @@ class Paddle
 public:
     // variables
     byte id;
-    PaddleStepper *_stepper = nullptr;
+    PaddleStepper *_stepper = NULL;
 
     // constructors
     Paddle();
@@ -43,10 +43,10 @@ public:
     static void run();
     static bool isRunning();
 
+    int stepIndex = 0;
 private:
     int _pinA;
     int _pinB;
-    byte stepIndex = 0;
     bool isStopping = false;
 
     // methods
@@ -64,7 +64,7 @@ public:
 
     void unsubScribe()
     {
-        this->_stepper->unSubscribe();
+        this->_stepper->unsubscribe();
     }
 
     ~Paddle();

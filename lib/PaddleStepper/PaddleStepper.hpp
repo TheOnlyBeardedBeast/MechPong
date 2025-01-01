@@ -1,34 +1,40 @@
-// Based on the AccelsStepper library
-#ifndef PaddleStepper_h
-#define PaddleStepper_h
-
-#include <StepDirection.hpp>
-#include <PaddleSubscriber.hpp>
-
-
-#include <stdlib.h>
-#if ARDUINO >= 100
+#pragma once
 #include <Arduino.h>
-#else
-#include <WProgram.h>
-#include <wiring.h>
-#endif
-
-// These defs cause trouble on some versions of Arduino
-#undef round
-
-// Use the system yield() whenever possoible, since some platforms require it for housekeeping, especially
-// ESP8266
-#if (defined(ARDUINO) && ARDUINO >= 155) || defined(ESP8266)
- #define YIELD yield();
-#else
- #define YIELD
-#endif
+#include <PaddleSubscriber.hpp>
 
 
 class PaddleStepper
 {
 public:
+    /// Constructor. You can have multiple simultaneous steppers, all moving
+    /// at different speeds and accelerations, provided you call their run()
+    /// functions at frequent enough intervals. Current Position is set to 0, target
+    /// position is set to 0. MaxSpeed and Acceleration default to 1.0.
+    /// The motor pins will be initialised to OUTPUT mode during the
+    /// constructor by a call to enableOutputs().
+    /// \param[in] interface Number of pins to interface to. Integer values are
+    /// supported, but it is preferred to use the \ref MotorInterfaceType symbolic names. 
+    /// PaddleStepper::DRIVER (1) means a stepper driver (with Step and Direction pins).
+    /// If an enable line is also needed, call setEnablePin() after construction.
+    /// You may also invert the pins using setPinsInverted().
+    /// PaddleStepper::FULL2WIRE (2) means a 2 wire stepper (2 pins required). 
+    /// PaddleStepper::FULL3WIRE (3) means a 3 wire stepper, such as HDD spindle (3 pins required). 
+    /// PaddleStepper::FULL4WIRE (4) means a 4 wire stepper (4 pins required). 
+    /// PaddleStepper::HALF3WIRE (6) means a 3 wire half stepper, such as HDD spindle (3 pins required)
+    /// PaddleStepper::HALF4WIRE (8) means a 4 wire half stepper (4 pins required)
+    /// Defaults to PaddleStepper::FULL4WIRE (4) pins.
+    /// \param[in] pin1 Arduino digital pin number for motor pin 1. Defaults
+    /// to pin 2. For a PaddleStepper::DRIVER (interface==1), 
+    /// this is the Step input to the driver. Low to high transition means to step)
+    /// \param[in] pin2 Arduino digital pin number for motor pin 2. Defaults
+    /// to pin 3. For a PaddleStepper::DRIVER (interface==1), 
+    /// this is the Direction input the driver. High means forward.
+    /// \param[in] pin3 Arduino digital pin number for motor pin 3. Defaults
+    /// to pin 4.
+    /// \param[in] pin4 Arduino digital pin number for motor pin 4. Defaults
+    /// to pin 5.
+    /// \param[in] enable If this is true (the default), enableOutputs() will be called to enable
+    /// the output pins at construction time.
     PaddleStepper(uint8_t pin1 = 2, uint8_t pin2 = 3);
     
     /// Set the target position. The run() function will try to move the motor (at most one step per call)
@@ -38,15 +44,9 @@ public:
     /// \param[in] absolute The desired absolute position. Negative is
     /// anticlockwise from the 0 position.
     void    moveTo(long absolute); 
-    int getDirectionStatus(StepDirection dir);
-
-    /// Set the target position relative to the current position.
-    /// \param[in] relative The desired position relative to the current position. Negative is
-    /// anticlockwise from the current position.
-    void    move(long relative);
 
     /// Poll the motor and step it if a step is due, implementing
-    /// accelerations and decelerations to achieve the target position. You must call this as
+    /// accelerations and decelerations to acheive the target position. You must call this as
     /// frequently as possible, but at least once per minimum step time interval,
     /// preferably in your main loop. Note that each call to run() will make at most one step, and then only when a step is due,
     /// based on the current speed and the time since the last step.
@@ -62,13 +62,12 @@ public:
     /// Sets the maximum permitted speed. The run() function will accelerate
     /// up to the speed set by this function.
     /// Caution: the maximum speed achievable depends on your processor and clock speed.
-    /// The default maxSpeed is 1.0 steps per second.
     /// \param[in] speed The desired maximum speed in steps per second. Must
     /// be > 0. Caution: Speeds that exceed the maximum speed supported by the processor may
     /// Result in non-linear accelerations and decelerations.
     void    setMaxSpeed(float speed);
 
-    /// Returns the maximum speed configured for this stepper
+    /// returns the maximum speed configured for this stepper
     /// that was previously set by setMaxSpeed();
     /// \return The currently configured maximum speed
     float   maxSpeed();
@@ -79,21 +78,15 @@ public:
     /// root to be calculated. Dont call more ofthen than needed
     void    setAcceleration(float acceleration);
 
-    /// Returns the acceleration/deceleration rate configured for this stepper
-    /// that was previously set by setAcceleration();
-    /// \return The currently configured acceleration/deceleration
-    float   acceleration();
-    
     /// Sets the desired constant speed for use with runSpeed().
     /// \param[in] speed The desired constant speed in steps per
     /// second. Positive is clockwise. Speeds of more than 1000 steps per
     /// second are unreliable. Very slow speeds may be set (eg 0.00027777 for
     /// once per hour, approximately. Speed accuracy depends on the Arduino
     /// crystal. Jitter depends on how frequently you call the runSpeed() function.
-    /// The speed will be limited by the current value of setMaxSpeed()
     void    setSpeed(float speed);
 
-    /// The most recently set speed.
+    /// The most recently set speed
     /// \return the most recent speed in steps per second
     float   speed();
 
@@ -107,7 +100,7 @@ public:
     /// in steps. Positive is clockwise from the 0 position.
     long    targetPosition();
 
-    /// The current motor position.
+    /// The currently motor position.
     /// \return the current motor position
     /// in steps. Positive is clockwise from the 0 position.
     long    currentPosition();  
@@ -121,15 +114,12 @@ public:
     /// happens to be right now.
     void    setCurrentPosition(long position);  
     
-    /// Moves the motor (with acceleration/deceleration)
+    /// Moves the motor (with acceleration/deceleration) 
     /// to the target position and blocks until it is at
     /// position. Dont use this in event loops, since it blocks.
     void    runToPosition();
 
-    /// Executes runSpeed() unless the targetPosition is reached.
-    /// This function needs to be called often just like runSpeed() or run().
-    /// Will step the motor if a step is required at the currently selected
-    /// speed unless the target position has been reached.
+    /// Runs at the currently selected speed until the target position is reached
     /// Does not implement accelerations.
     /// \return true if it stepped
     boolean runSpeedToPosition();
@@ -143,20 +133,6 @@ public:
     /// Sets a new target position that causes the stepper
     /// to stop as quickly as possible, using the current speed and acceleration parameters.
     void stop();
-
-    /// Disable motor pin outputs by setting them all LOW
-    /// Depending on the design of your electronics this may turn off
-    /// the power to the motor coils, saving power.
-    /// This is useful to support Arduino low power modes: disable the outputs
-    /// during sleep and then reenable with enableOutputs() before stepping
-    /// again.
-    /// If the enable Pin is defined, sets it to OUTPUT mode and clears the pin to disabled.
-    virtual void    disableOutputs();
-
-    /// Enable motor pin outputs by setting the motor pins to OUTPUT
-    /// mode. Called automatically by the constructor.
-    /// If the enable Pin is defined, sets it to OUTPUT mode and sets the pin to enabled.
-    virtual void    enableOutputs();
 
     /// Sets the minimum pulse width allowed by the stepper driver. The minimum practical pulse width is 
     /// approximately 20 microseconds. Times less than 20 microseconds
@@ -191,20 +167,22 @@ public:
     /// \return true if the speed is not zero or not at the target position
     bool    isRunning();
 
-    /// Virtual destructor to prevent warnings during delete
-    virtual ~PaddleStepper() {};
-
     void subscribe(PaddleSubscriber *subscriber);
-    void unSubscribe();
+    void unsubscribe();
 
-    
+    virtual ~PaddleStepper() = default;
+
+    void clear();
+
 protected:
 
-    /// \brief StepDirection indicator
+    /// \brief Direction indicator
     /// Symbolic names for the direction the motor is turning
-    
-
-    
+    typedef enum
+    {
+        DIRECTION_CCW = -1,  ///< Counter-Clockwise
+        DIRECTION_CW  = 1   ///< Clockwise
+    } Direction;
 
     /// Forces the library to compute a new instantaneous speed and set that as
     /// the current speed. It is called by
@@ -214,60 +192,33 @@ protected:
     /// \li  after change to acceleration through setAcceleration()
     /// \li  after change to target position (relative or absolute) through
     /// move() or moveTo()
-    /// \return the new step interval
-    virtual unsigned long  computeNewSpeed();
+    void           computeNewSpeed();
 
     /// Low level function to set the motor output pins
     /// bit 0 of the mask corresponds to _pin[0]
     /// bit 1 of the mask corresponds to _pin[1]
     /// You can override this to impment, for example serial chip output insted of using the
     /// output pins directly
-    virtual void   setOutputPins(uint8_t mask);
+    // virtual void   setOutputPins(uint8_t mask);
 
     /// Called to execute a step. Only called when a new step is
     /// required. Subclasses may override to implement new stepping
-    /// interfaces. The default calls step1(), step2(), step4() or step8() depending on the
     /// number of pins defined for the stepper.
     /// \param[in] step The current step phase number (0 to 7)
     virtual void   step(long step);
-
-    void stepLow();
-    
-    /// Called to execute a clockwise(+) step. Only called when a new step is
-    /// required. This increments the _currentPos and calls step()
-    /// \return the updated current position
-    long   stepForward();
-
-    /// Called to execute a counter-clockwise(-) step. Only called when a new step is
-    /// required. This decrements the _currentPos and calls step()
-    /// \return the updated current position
-    long   stepBackward();
-
-    /// Called to execute a step on a stepper driver (ie where pins == 1). Only called when a new step is
-    /// required. Subclasses may override to implement new stepping
-    /// interfaces. The default sets or clears the outputs of Step pin1 to step, 
-    /// and sets the output of _pin2 to the desired direction. The Step pin (_pin1) is pulsed for 1 microsecond
-    /// which is the minimum STEP pulse width for the 3967 driver.
-    /// \param[in] step The current step phase number (0 to 7)
-    virtual void   step1(long step);
 
     /// Current direction motor is spinning in
     /// Protected because some peoples subclasses need it to be so
     boolean _direction; // 1 == CW
     
-    /// The current interval between steps in microseconds.
-    /// 0 means the motor is currently stopped with _speed == 0
-    unsigned long  _stepInterval;
+private:      // 0, 1, 2, 4, 8, See MotorInterfaceType
 
-    void setDirection(StepDirection dir);
-
-private:
     /// Arduino pin number assignments for the 2 or 4 pins required to interface to the
     /// stepper motor or driver
-    uint8_t        _pin[4];
+    uint8_t        _pin[2];
 
     /// Whether the _pins is inverted or not
-    uint8_t        _pinInverted[4];
+    uint8_t        _pinInverted[2];
 
     /// The current absolution position in steps.
     long           _currentPos;    // Steps
@@ -289,6 +240,10 @@ private:
     float          _acceleration;
     float          _sqrt_twoa; // Precomputed sqrt(2*_acceleration)
 
+    /// The current interval between steps in microseconds.
+    /// 0 means the motor is currently stopped with _speed == 0
+    unsigned long  _stepInterval;
+
     /// The last step time in microseconds
     unsigned long  _lastStepTime;
 
@@ -307,12 +262,6 @@ private:
     /// Enable pin for stepper driver, or 0xFF if unused.
     uint8_t        _enablePin;
 
-    /// The pointer to a forward-step procedure
-    void (*_forward)();
-
-    /// The pointer to a backward-step procedure
-    void (*_backward)();
-
     /// The step counter for speed calculations
     long _n;
 
@@ -325,66 +274,12 @@ private:
     /// Min step size in microseconds based on maxSpeed
     float _cmin; // at max speed
 
-    bool shouldClear;
-    unsigned long shouldClearAt;
-
     PaddleSubscriber *subscriber = NULL;
-public:
-    bool calibrated = false;
+
+    /// Set the target position relative to the current position
+    /// \param[in] relative The desired position relative to the current position. Negative is
+    /// anticlockwise from the current position.
+    void    move(long relative);
+    
+    bool shouldClear = false;
 };
-
-/// @example Random.pde
-/// Make a single stepper perform random changes in speed, position and acceleration
-
-/// @example Overshoot.pde
-///  Check overshoot handling
-/// which sets a new target position and then waits until the stepper has 
-/// achieved it. This is used for testing the handling of overshoots
-
-/// @example MultipleSteppers.pde
-/// Shows how to multiple simultaneous steppers
-/// Runs one stepper forwards and backwards, accelerating and decelerating
-/// at the limits. Runs other steppers at the same time
-
-/// @example ConstantSpeed.pde
-/// Shows how to run PaddleStepper in the simplest,
-/// fixed speed mode with no accelerations
-
-/// @example Blocking.pde 
-/// Shows how to use the blocking call runToNewPosition
-/// Which sets a new target position and then waits until the stepper has 
-/// achieved it.
-
-/// @example AFMotor_MultiStepper.pde
-/// Control both Stepper motors at the same time with different speeds
-/// and accelerations. 
-
-/// @example AFMotor_ConstantSpeed.pde
-/// Shows how to run PaddleStepper in the simplest,
-/// fixed speed mode with no accelerations
-
-/// @example ProportionalControl.pde
-/// Make a single stepper follow the analog value read from a pot or whatever
-/// The stepper will move at a constant speed to each newly set posiiton, 
-/// depending on the value of the pot.
-
-/// @example Bounce.pde
-/// Make a single stepper bounce from one limit to another, observing
-/// accelrations at each end of travel
-
-/// @example Quickstop.pde
-/// Check stop handling.
-/// Calls stop() while the stepper is travelling at full speed, causing
-/// the stepper to stop as quickly as possible, within the constraints of the
-/// current acceleration.
-
-/// @example MotorShield.pde
-/// Shows how to use PaddleStepper to control a 3-phase motor, such as a HDD spindle motor
-/// using the Adafruit Motor Shield http://www.ladyada.net/make/mshield/index.html.
-
-/// @example DualMotorShield.pde
-/// Shows how to use PaddleStepper to control 2 x 2 phase steppers using the 
-/// Itead Studio Arduino Dual Stepper Motor Driver Shield
-/// model IM120417015
-
-#endif 

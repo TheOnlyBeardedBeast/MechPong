@@ -1,26 +1,12 @@
 #include "PaddleStepper.hpp"
 
-#if 0
-// Some debugging assistance
-void dump(uint8_t* p, int l)
-{
-    int i;
-
-    for (i = 0; i < l; i++)
-    {
-	Serial.print(p[i], HEX);
-	Serial.print(" ");
-    }
-    Serial.println("");
-}
-#endif
-
 void PaddleStepper::moveTo(long absolute)
 {
     if (_targetPos != absolute)
     {
 	_targetPos = absolute;
 	computeNewSpeed();
+	// compute new n?
     }
 }
 
@@ -38,29 +24,34 @@ boolean PaddleStepper::runSpeed()
     if (!_stepInterval)
 	return false;
 
-    unsigned long time = micros();
+    unsigned long time = micros();  
     unsigned long delta = time - _lastStepTime;
 
-    if(shouldClear &&  delta >= _minPulseWidth)
-    {
-        stepLow();
-        shouldClear = false;
+    if(this->shouldClear && delta >= this->_minPulseWidth){
+        this->clear();
     }
 
-    if (delta >= _stepInterval)
+    if ( delta >= _stepInterval)
     {
-        _currentPos += _direction;
-        step(_currentPos);
+	if (_direction == DIRECTION_CW)
+	{
+	    // Clockwise
+	    _currentPos += 1;
+	}
+	else
+	{
+	    // Anticlockwise  
+	    _currentPos -= 1;
+	}
+	step(_currentPos);
 
-        _lastStepTime = time;
-        this->shouldClearAt = time + _minPulseWidth;
-        this->shouldClear = true;
+	_lastStepTime = time; // Caution: does not account for costs in step()
 
-        return true;
+	return true;
     }
     else
     {
-	    return false;
+	return false;
     }
 }
 
@@ -89,8 +80,13 @@ void PaddleStepper::setCurrentPosition(long position)
     _speed = 0.0;
 }
 
-// Subclasses can override
-unsigned long PaddleStepper::computeNewSpeed()
+void PaddleStepper::clear()
+{
+    this->shouldClear = false;
+    digitalWrite(this->_pin[0],LOW);
+}
+
+void PaddleStepper::computeNewSpeed()
 {
     long distanceTo = distanceToGo(); // +ve is clockwise from curent location
 
@@ -102,7 +98,7 @@ unsigned long PaddleStepper::computeNewSpeed()
 	_stepInterval = 0;
 	_speed = 0.0;
 	_n = 0;
-	return _stepInterval;
+	return;
     }
 
     if (distanceTo > 0)
@@ -112,13 +108,13 @@ unsigned long PaddleStepper::computeNewSpeed()
 	if (_n > 0)
 	{
 	    // Currently accelerating, need to decel now? Or maybe going the wrong way?
-	    if ((stepsToStop >= distanceTo) || _direction == DIRECTION_CCW)
+	    if ((stepsToStop >= distanceTo) || _direction == false)
 		_n = -stepsToStop; // Start deceleration
 	}
 	else if (_n < 0)
 	{
 	    // Currently decelerating, need to accel again?
-	    if ((stepsToStop < distanceTo) && _direction == DIRECTION_CW)
+	    if ((stepsToStop < distanceTo) && _direction == true)
 		_n = -_n; // Start accceleration
 	}
     }
@@ -129,13 +125,13 @@ unsigned long PaddleStepper::computeNewSpeed()
 	if (_n > 0)
 	{
 	    // Currently accelerating, need to decel now? Or maybe going the wrong way?
-	    if ((stepsToStop >= -distanceTo) || _direction == DIRECTION_CW)
+	    if ((stepsToStop >= -distanceTo) || _direction == true)
 		_n = -stepsToStop; // Start deceleration
 	}
 	else if (_n < 0)
 	{
 	    // Currently decelerating, need to accel again?
-	    if ((stepsToStop < -distanceTo) && _direction == DIRECTION_CCW)
+	    if ((stepsToStop < -distanceTo) && _direction == false)
 		_n = -_n; // Start accceleration
 	}
     }
@@ -145,7 +141,7 @@ unsigned long PaddleStepper::computeNewSpeed()
     {
 	// First step from stopped
 	_cn = _c0;
-	setDirection((distanceTo > 0) ? DIRECTION_CW : DIRECTION_CCW);
+	_direction = (distanceTo > 0) ? true : false;
     }
     else
     {
@@ -156,21 +152,8 @@ unsigned long PaddleStepper::computeNewSpeed()
     _n++;
     _stepInterval = _cn;
     _speed = 1000000.0 / _cn;
-    if (_direction == DIRECTION_CCW)
+    if (_direction == false)
 	_speed = -_speed;
-
-#if 0
-    Serial.println(_speed);
-    Serial.println(_acceleration);
-    Serial.println(_cn);
-    Serial.println(_c0);
-    Serial.println(_n);
-    Serial.println(_stepInterval);
-    Serial.println(distanceTo);
-    Serial.println(stepsToStop);
-    Serial.println("-----");
-#endif
-    return _stepInterval;
 }
 
 // Run the motor to implement speed and acceleration in order to proceed to the target position
@@ -189,11 +172,11 @@ PaddleStepper::PaddleStepper(uint8_t pin1, uint8_t pin2)
     _currentPos = 0;
     _targetPos = 0;
     _speed = 0.0;
-    _maxSpeed = 0.0;
+    _maxSpeed = 1.0;
     _acceleration = 0.0;
     _sqrt_twoa = 1.0;
     _stepInterval = 0;
-    _minPulseWidth = 1;
+    _minPulseWidth = 5;
     _enablePin = 0xff;
     _lastStepTime = 0;
     _pin[0] = pin1;
@@ -205,33 +188,31 @@ PaddleStepper::PaddleStepper(uint8_t pin1, uint8_t pin2)
     _c0 = 0.0;
     _cn = 0.0;
     _cmin = 1.0;
+    _direction = false;
 
-    enableOutputs();
-    setDirection(DIRECTION_CCW);
-
-    int i;
-    for (i = 0; i < 4; i++)
-	_pinInverted[i] = 0;
-	
+    _pinInverted[0] = 0;
+    _pinInverted[1] = 0;
+    
     // Some reasonable default
     setAcceleration(1);
-    setMaxSpeed(1);
 }
 
 void PaddleStepper::setMaxSpeed(float speed)
 {
     if (speed < 0.0)
-       speed = -speed;
+    {
+        speed = -speed;
+    }
     if (_maxSpeed != speed)
     {
-	_maxSpeed = speed;
-	_cmin = 1000000.0 / speed;
-	// Recompute _n from current speed and adjust speed if accelerating or cruising
-	if (_n > 0)
-	{
-	    _n = (long)((_speed * _speed) / (2.0 * _acceleration)); // Equation 16
-	    computeNewSpeed();
-	}
+        _maxSpeed = speed;
+        _cmin = 1000000.0 / speed;
+        // Recompute _n from current speed and adjust speed if accelerating or cruising
+        if (_n > 0)
+        {
+            _n = (long)((_speed * _speed) / (2.0 * _acceleration)); // Equation 16
+            computeNewSpeed();
+        }
     }
 }
 
@@ -257,11 +238,6 @@ void PaddleStepper::setAcceleration(float acceleration)
     }
 }
 
-float   PaddleStepper::acceleration()
-{
-    return _acceleration;
-}
-
 void PaddleStepper::setSpeed(float speed)
 {
     if (speed == _speed)
@@ -272,7 +248,7 @@ void PaddleStepper::setSpeed(float speed)
     else
     {
 	_stepInterval = fabs(1000000.0 / speed);
-	setDirection((speed > 0.0) ? DIRECTION_CW : DIRECTION_CCW);
+	_direction = (speed > 0.0) ? true : false;
     }
     _speed = speed;
 }
@@ -285,117 +261,27 @@ float PaddleStepper::speed()
 // Subclasses can override
 void PaddleStepper::step(long step)
 {
-	    step1(step);
+	(void)(step); // Unused
+
+    // _pin[0] is step, _pin[1] is direction
+
+    digitalWrite(this->_pin[1], this->_direction ^ _pinInverted[1]);
+    digitalWrite(this->_pin[0],HIGH);
+    // Caution 200ns setup time 
+    // Delay the minimum allowed pulse width
+    // delayMicroseconds(_minPulseWidth);
+    // digitalWrite(this->_pin[0],LOW);
+    this->shouldClear = true;
 }
 
-void PaddleStepper::stepLow()
-{
-    setOutputPins(_direction == DIRECTION_CCW ? 0b10 : 0b00);
+// void PaddleStepper::setOutputPins(uint8_t mask)
+// {
+//     uint8_t numpins = 2;
+//     uint8_t i;
+//     for (i = 0; i < numpins; i++)
+// 	digitalWrite(_pin[i], (mask & (1 << i)) ? (HIGH ^ _pinInverted[i]) : (LOW ^ _pinInverted[i]));
+// }
 
-    if(this->subscriber)
-    {
-        this->subscriber->stepLow();
-    }
-}
-
-long PaddleStepper::stepForward()
-{
-    // Clockwise
-    _currentPos += 1;
-	step(_currentPos);
-	_lastStepTime = micros();
-    return _currentPos;
-}
-
-long PaddleStepper::stepBackward()
-{
-    // Counter-clockwise
-    _currentPos -= 1;
-	step(_currentPos);
-	_lastStepTime = micros();
-    return _currentPos;
-}
-
-// You might want to override this to implement eg serial output
-// bit 0 of the mask corresponds to _pin[0]
-// bit 1 of the mask corresponds to _pin[1]
-// ....
-void PaddleStepper::setOutputPins(uint8_t mask)
-{
-    uint8_t numpins = 2;
-    uint8_t i;
-    for (i = 0; i < numpins; i++)
-	digitalWrite(_pin[i], (mask & (1 << i)) ? (HIGH ^ _pinInverted[i]) : (LOW ^ _pinInverted[i]));
-}
-
-// 1 pin step function (ie for stepper drivers)
-// This is passed the current step number (0 to 7)
-// Subclasses can override
-void PaddleStepper::step1(long step)
-{
-    (void)(step); // Unused
-
-    setOutputPins(_direction == DIRECTION_CW ? 0b11 : 0b01); // step HIGH
-
-    if(this->subscriber)
-    {
-        this->subscriber->stepSingle();
-    }
-}
-
-int PaddleStepper::getDirectionStatus(StepDirection dir)
-{
-    if(dir > 0)
-    {
-        if(this->_pinInverted[0]) {
-            return LOW;
-        }
-
-        return HIGH;
-    } else {
-        if(this->_pinInverted[0]) {
-            return HIGH;
-        }
-
-        return LOW;
-    }
-}
-
-void PaddleStepper::setDirection(StepDirection dir)
-{
-    this->_direction = dir;
-
-    if(this->subscriber)
-    {
-        this->subscriber->setDirection(dir);
-    }
-
-    digitalWrite(_pin[0], this->getDirectionStatus(dir));
-}
-
-// Prevents power consumption on the outputs
-void    PaddleStepper::disableOutputs()
-{ 
-    setOutputPins(0); // Handles inversion automatically
-    if (_enablePin != 0xff)
-    {
-        pinMode(_enablePin, OUTPUT);
-        digitalWrite(_enablePin, LOW ^ _enableInverted);
-    }
-}
-
-void PaddleStepper::enableOutputs()
-{
-
-    pinMode(_pin[0], OUTPUT);
-    pinMode(_pin[1], OUTPUT);
-
-    if (_enablePin != 0xff)
-    {
-        pinMode(_enablePin, OUTPUT);
-        digitalWrite(_enablePin, HIGH ^ _enableInverted);
-    }
-}
 
 void PaddleStepper::setMinPulseWidth(unsigned int minWidth)
 {
@@ -425,8 +311,6 @@ void PaddleStepper::setPinsInverted(bool pin1Invert, bool pin2Invert, bool pin3I
 {    
     _pinInverted[0] = pin1Invert;
     _pinInverted[1] = pin2Invert;
-    _pinInverted[2] = pin3Invert;
-    _pinInverted[3] = pin4Invert;
     _enableInverted = enableInvert;
 }
 
@@ -434,17 +318,25 @@ void PaddleStepper::setPinsInverted(bool pin1Invert, bool pin2Invert, bool pin3I
 void PaddleStepper::runToPosition()
 {
     while (run())
-	YIELD; // Let system housekeeping occur
+	;
 }
 
 boolean PaddleStepper::runSpeedToPosition()
 {
     if (_targetPos == _currentPos)
-	return false;
+	{
+        return false;
+    }
+
     if (_targetPos >_currentPos)
-	setDirection(DIRECTION_CW);
+	{
+        _direction = true;
+    }
     else
-	setDirection(DIRECTION_CCW);
+	{
+        _direction = false;
+    }
+
     return runSpeed();
 }
 
@@ -469,15 +361,12 @@ void PaddleStepper::stop()
 
 bool PaddleStepper::isRunning()
 {
-    return !(_speed == 0.0 && _targetPos == _currentPos && this->shouldClear == false);
+    return !(_speed == 0.0 && _targetPos == _currentPos && !this->shouldClear);
 }
 
-void PaddleStepper::unSubscribe()
-{
+void PaddleStepper::subscribe(PaddleSubscriber *subscriber){
+    this->subscriber = subscriber;
+}
+void PaddleStepper::unsubscribe() {
     this->subscriber = NULL;
-}
-
-void PaddleStepper::subscribe(PaddleSubscriber *_subscriber)
-{
-    this->subscriber = _subscriber;
 }

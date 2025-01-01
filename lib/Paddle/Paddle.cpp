@@ -23,8 +23,8 @@ void Paddle::initializeStepper(int step, int dir)
     pinMode(dir,OUTPUT);
 
     this->_stepper = new PaddleStepper(step,dir);
-    this->_stepper->setMaxSpeed(1200);
-    this->_stepper->setAcceleration(4800);
+    this->_stepper->setMaxSpeed(2000);
+    this->_stepper->setAcceleration(20000);
 }
 
 void Paddle::center()
@@ -53,27 +53,29 @@ void Paddle::increment()
 {
     long target = constrain(this->_stepper->targetPosition() + 1, 0, PADDLE_LIMIT);
     this->_stepper->moveTo(target);
+    this->stepIndex++;
 }
 
 void Paddle::decrement()
 {
     long target = constrain(this->_stepper->targetPosition() - 1, 0, PADDLE_LIMIT);
     this->_stepper->moveTo(target);
+    this->stepIndex--;
 }
 
 void Paddle::changeTarget(bool direction)
 {
-    if (this->stepIndex == 0)
-    {
+    // if (this->stepIndex == 0)
+    // {
         if(direction)
         {
             this->increment();
         } else {
             this->decrement();
         }
-    }
+    // }
     
-    this->stepIndex = (this->stepIndex + 1) % PADDLE_SENSITIVITY;
+    // this->stepIndex = (this->stepIndex + 1) % PADDLE_SENSITIVITY;
 }
 
 Paddle::~Paddle()
@@ -108,13 +110,27 @@ void Paddle::setAcceleration(float acceleration)
 
 void Paddle::isrReadEncoder0()
 {
-    Paddle::instances[0]->changeTarget(!Paddle::instances[0]->readB());
+    int a = Paddle::instances[0]->readA();
+    int b = Paddle::instances[0]->readB();
+    if(a != b)
+    {
+        Paddle::instances[0]->increment();
+    } else {
+        Paddle::instances[0]->decrement();
+    }
 }
 
 void Paddle::isrReadEncoder01()
 {
 
-    Paddle::instances[0]->changeTarget(Paddle::instances[0]->readA());
+    int a = Paddle::instances[0]->readA();
+    int b = Paddle::instances[0]->readB();
+    if(a == b)
+    {
+        Paddle::instances[0]->increment();
+    } else {
+        Paddle::instances[0]->decrement();
+    }
 }
 
 void Paddle::isrReadEncoder10()
@@ -137,30 +153,30 @@ void Paddle::calibrate()
 
     delayMicroseconds(20);
 
-    while (!p1->_stepper->calibrated || !p2->_stepper->calibrated)
-    {
-        // TODO
-        if (!digitalRead(3))
-        {
-            p1->_stepper->calibrated = true;
-        }
+    // while (!p1->_stepper->calibrated || !p2->_stepper->calibrated)
+    // {
+    //     // TODO
+    //     if (!digitalRead(3))
+    //     {
+    //         p1->_stepper->calibrated = true;
+    //     }
 
-        // TODO
-        if (!digitalRead(4))
-        {
-            p2->_stepper->calibrated = true;
-        }
+    //     // TODO
+    //     if (!digitalRead(4))
+    //     {
+    //         p2->_stepper->calibrated = true;
+    //     }
 
-        if (!p1->_stepper->calibrated)
-        {
-            p1->_stepper->runSpeed();
-        }
+    //     if (!p1->_stepper->calibrated)
+    //     {
+    //         p1->_stepper->runSpeed();
+    //     }
 
-        if (!p2->_stepper->calibrated)
-        {
-            p2->_stepper->runSpeed();
-        }
-    }
+    //     if (!p2->_stepper->calibrated)
+    //     {
+    //         p2->_stepper->runSpeed();
+    //     }
+    // }
 
     p1->_stepper->setCurrentPosition(-10);
     p2->_stepper->setCurrentPosition(-10);
@@ -195,11 +211,11 @@ void Paddle::attachPaddles()
     attachInterrupt(
         digitalPinToInterrupt(
             Paddle::instances[0]->_pinA),
-        Paddle::isrReadEncoder0, RISING);
+        Paddle::isrReadEncoder0, CHANGE);
     attachInterrupt(
         digitalPinToInterrupt(
             Paddle::instances[0]->_pinB),
-        Paddle::isrReadEncoder01, RISING);
+        Paddle::isrReadEncoder01, CHANGE);
     attachInterrupt(
         digitalPinToInterrupt(
             Paddle::instances[1]->_pinA),

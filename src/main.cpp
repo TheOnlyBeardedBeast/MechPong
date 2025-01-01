@@ -6,28 +6,25 @@ Paddle paddle0;
 Paddle paddle1;
 
 void setup() {
-  Serial.begin(115200);
+  // Serial.begin(9600);
+  paddle0.initializeStepper(8,9);
+  paddle0.initializeEncoder(10,11);
 
-  paddle0.initializeStepper(4,5);
-  paddle0.initializeEncoder(6,7);
-  paddle0.attachPaddles();
-
-  paddle1.initializeStepper(9,10);
-  paddle1.initializeEncoder(11,12);
-  paddle1.attachPaddles();
+  paddle1.initializeStepper(50,51);
+  paddle1.initializeEncoder(52,53);
 
   Paddle::instances[0] = &paddle0;
   Paddle::instances[1] = &paddle1;
 
+  Paddle::attachPaddles();
+
   pinMode(LED_BUILTIN,OUTPUT);
+  digitalWrite(LED_BUILTIN,HIGH);
 }
 
 void loop() {
   Paddle::run();
-  delay(1000);
-  digitalWrite(LED_BUILTIN,LOW);
-  delay(1000);
-  digitalWrite(LED_BUILTIN,HIGH);
-  Serial.println("I am the pico");
-  
+  // Serial.print(paddle0._stepper->currentPosition());
+  // Serial.print(",");
+  // Serial.println(paddle0._stepper->targetPosition());
 }
