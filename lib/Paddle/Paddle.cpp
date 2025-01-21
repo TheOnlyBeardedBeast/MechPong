@@ -23,8 +23,8 @@ void Paddle::initializeStepper(int step, int dir)
     pinMode(dir,OUTPUT);
 
     this->_stepper = new PaddleStepper(step,dir);
-    this->_stepper->setMaxSpeed(2000);
-    this->_stepper->setAcceleration(20000);
+    this->_stepper->setMaxSpeed(1200);
+    this->_stepper->setAcceleration(800);
 }
 
 void Paddle::center()
@@ -51,16 +51,28 @@ int Paddle::readB()
 
 void Paddle::increment()
 {
-    long target = constrain(this->_stepper->targetPosition() + 1, 0, PADDLE_LIMIT);
-    this->_stepper->moveTo(target);
-    this->stepIndex++;
+    this->stepIndex+=0.5f;
+
+    int delta = stepIndex > 0 ? floor(stepIndex) : ceil(stepIndex);
+
+    if(delta==1){
+        long target = constrain(this->_stepper->targetPosition() + 1, 0, PADDLE_LIMIT);
+        this->_stepper->moveTo(target);
+        this->stepIndex = 0;
+    }
 }
 
 void Paddle::decrement()
 {
-    long target = constrain(this->_stepper->targetPosition() - 1, 0, PADDLE_LIMIT);
-    this->_stepper->moveTo(target);
-    this->stepIndex--;
+    this->stepIndex-=0.5f;
+    int delta = stepIndex > 0 ? floor(stepIndex) : ceil(stepIndex);
+    if(delta == -1)
+    {
+        long target = constrain(this->_stepper->targetPosition() - 1, 0, PADDLE_LIMIT);
+        this->_stepper->moveTo(target);
+        this->stepIndex = 0;
+    }
+    
 }
 
 void Paddle::changeTarget(bool direction)
@@ -208,14 +220,15 @@ bool Paddle::isRunning()
 void Paddle::attachPaddles()
 {
 
-    attachInterrupt(
+#ifdef ARDUINO_ARCH_RP2040
+  attachInterrupt(
         digitalPinToInterrupt(
             Paddle::instances[0]->_pinA),
-        Paddle::isrReadEncoder0, CHANGE);
+        Paddle::isrReadEncoder0, RISING);
     attachInterrupt(
         digitalPinToInterrupt(
             Paddle::instances[0]->_pinB),
-        Paddle::isrReadEncoder01, CHANGE);
+        Paddle::isrReadEncoder01, RISING);
     attachInterrupt(
         digitalPinToInterrupt(
             Paddle::instances[1]->_pinA),
@@ -224,6 +237,26 @@ void Paddle::attachPaddles()
         digitalPinToInterrupt(
             Paddle::instances[1]->_pinB),
         Paddle::isrReadEncoder11, RISING);
+#endif
+#ifdef ARDUINO_SAM_DUE
+  attachInterrupt(
+        digitalPinToInterrupt(
+            Paddle::instances[0]->_pinA),
+        Paddle::isrReadEncoder0, RISING);
+    attachInterrupt(
+        digitalPinToInterrupt(
+            Paddle::instances[0]->_pinB),
+        Paddle::isrReadEncoder01, RISING);
+    attachInterrupt(
+        digitalPinToInterrupt(
+            Paddle::instances[1]->_pinA),
+        Paddle::isrReadEncoder10, RISING);
+    attachInterrupt(
+        digitalPinToInterrupt(
+            Paddle::instances[1]->_pinB),
+        Paddle::isrReadEncoder11, RISING);
+#endif
+    
 }
 
 void Paddle::detachPaddles()

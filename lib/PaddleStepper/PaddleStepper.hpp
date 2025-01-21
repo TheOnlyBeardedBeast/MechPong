@@ -174,16 +174,9 @@ public:
 
     void clear();
 
+    void setDirection(bool dir);
+
 protected:
-
-    /// \brief Direction indicator
-    /// Symbolic names for the direction the motor is turning
-    typedef enum
-    {
-        DIRECTION_CCW = -1,  ///< Counter-Clockwise
-        DIRECTION_CW  = 1   ///< Clockwise
-    } Direction;
-
     /// Forces the library to compute a new instantaneous speed and set that as
     /// the current speed. It is called by
     /// the library:
@@ -193,6 +186,8 @@ protected:
     /// \li  after change to target position (relative or absolute) through
     /// move() or moveTo()
     void           computeNewSpeed();
+
+    
 
     /// Low level function to set the motor output pins
     /// bit 0 of the mask corresponds to _pin[0]

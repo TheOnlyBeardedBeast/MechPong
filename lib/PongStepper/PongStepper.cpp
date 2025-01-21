@@ -1,19 +1,65 @@
 #include "PongStepper.hpp"
 
-PongStepper *PongStepper::instances[2];
-
 void PongStepper::moveTo(long absolute)
 {
     if (_targetPos != absolute)
     {
 	_targetPos = absolute;
 	computeNewSpeed();
+	// compute new n?
     }
+}
+
+void PongStepper::setDirection(bool dir)
+{
+    this->_direction = dir;
+
+    digitalWrite(this->_pin[1], this->_direction ^ _pinInverted[1]);
 }
 
 void PongStepper::move(long relative)
 {
     moveTo(_currentPos + relative);
+}
+
+// Implements steps according to the current step interval
+// You must call this at least once per step
+// returns true if a step occurred
+boolean PongStepper::runSpeed()
+{
+    // Dont do anything unless we actually have a step interval
+    if (!_stepInterval)
+	return false;
+
+    unsigned long time = micros();  
+    unsigned long delta = time - _lastStepTime;
+
+    if(this->shouldClear && delta >= this->_minPulseWidth){
+        this->clear();
+    }
+
+    if ( delta >= _stepInterval)
+    {
+	if (_direction == true)
+	{
+	    // Clockwise
+	    _currentPos += 1;
+	}
+	else
+	{
+	    // Anticlockwise  
+	    _currentPos -= 1;
+	}
+	step(_currentPos);
+
+	_lastStepTime = time; // Caution: does not account for costs in step()
+
+	return true;
+    }
+    else
+    {
+	return false;
+    }
 }
 
 long PongStepper::distanceToGo()
@@ -41,8 +87,13 @@ void PongStepper::setCurrentPosition(long position)
     _speed = 0.0;
 }
 
-// Subclasses can override
-unsigned long PongStepper::computeNewSpeed()
+void PongStepper::clear()
+{
+    this->shouldClear = false;
+    digitalWrite(this->_pin[0],LOW);
+}
+
+void PongStepper::computeNewSpeed()
 {
     long distanceTo = distanceToGo(); // +ve is clockwise from curent location
 
@@ -54,8 +105,7 @@ unsigned long PongStepper::computeNewSpeed()
 	_stepInterval = 0;
 	_speed = 0.0;
 	_n = 0;
-    this->ITimer->stopTimer();
-	return _stepInterval;
+	return;
     }
 
     if (distanceTo > 0)
@@ -65,13 +115,13 @@ unsigned long PongStepper::computeNewSpeed()
 	if (_n > 0)
 	{
 	    // Currently accelerating, need to decel now? Or maybe going the wrong way?
-	    if ((stepsToStop >= distanceTo) || _direction == DIRECTION_CCW)
+	    if ((stepsToStop >= distanceTo) || _direction == false)
 		_n = -stepsToStop; // Start deceleration
 	}
 	else if (_n < 0)
 	{
 	    // Currently decelerating, need to accel again?
-	    if ((stepsToStop < distanceTo) && _direction == DIRECTION_CW)
+	    if ((stepsToStop < distanceTo) && _direction == true)
 		_n = -_n; // Start accceleration
 	}
     }
@@ -82,13 +132,13 @@ unsigned long PongStepper::computeNewSpeed()
 	if (_n > 0)
 	{
 	    // Currently accelerating, need to decel now? Or maybe going the wrong way?
-	    if ((stepsToStop >= -distanceTo) || _direction == DIRECTION_CW)
+	    if ((stepsToStop >= -distanceTo) || _direction == true)
 		_n = -stepsToStop; // Start deceleration
 	}
 	else if (_n < 0)
 	{
 	    // Currently decelerating, need to accel again?
-	    if ((stepsToStop < -distanceTo) && _direction == DIRECTION_CCW)
+	    if ((stepsToStop < -distanceTo) && _direction == false)
 		_n = -_n; // Start accceleration
 	}
     }
@@ -98,7 +148,7 @@ unsigned long PongStepper::computeNewSpeed()
     {
 	// First step from stopped
 	_cn = _c0;
-	setDirection((distanceTo > 0) ? DIRECTION_CW : DIRECTION_CCW);
+	this->setDirection((distanceTo > 0) ? true : false);
     }
     else
     {
@@ -109,29 +159,17 @@ unsigned long PongStepper::computeNewSpeed()
     _n++;
     _stepInterval = _cn;
     _speed = 1000000.0 / _cn;
-    if (_direction == DIRECTION_CCW)
+    if (_direction == false)
 	_speed = -_speed;
-
-    this->step1(0);
-
-    if(this->axis == Axis::X){
-        this->ITimer->attachInterruptInterval(this->_stepInterval,PongStepper::runX);
-    } else {
-        this->ITimer->attachInterruptInterval(this->_stepInterval,PongStepper::runY);
-    }
-
-    this->shouldClear = true;
-    this->shouldClearAt = micros() + _stepInterval + 5;
-
-    return _stepInterval;
 }
 
 // Run the motor to implement speed and acceleration in order to proceed to the target position
 // You must call this at least once per step, preferably in your main loop
 // If the motor is in the desired position, the cost is very small
 // returns true if the motor is still running to the target position.
-bool PongStepper::run()
+boolean PongStepper::run()
 {
+    if (runSpeed())
 	computeNewSpeed();
     return _speed != 0.0 || distanceToGo() != 0;
 }
@@ -141,11 +179,11 @@ PongStepper::PongStepper(uint8_t pin1, uint8_t pin2)
     _currentPos = 0;
     _targetPos = 0;
     _speed = 0.0;
-    _maxSpeed = 0.0;
+    _maxSpeed = 1.0;
     _acceleration = 0.0;
     _sqrt_twoa = 1.0;
     _stepInterval = 0;
-    _minPulseWidth = 1;
+    _minPulseWidth = 5;
     _enablePin = 0xff;
     _lastStepTime = 0;
     _pin[0] = pin1;
@@ -157,33 +195,31 @@ PongStepper::PongStepper(uint8_t pin1, uint8_t pin2)
     _c0 = 0.0;
     _cn = 0.0;
     _cmin = 1.0;
+    _direction = false;
 
-    enableOutputs();
-    setDirection(DIRECTION_CCW);
-
-    int i;
-    for (i = 0; i < 4; i++)
-	_pinInverted[i] = 0;
-	
+    _pinInverted[0] = 0;
+    _pinInverted[1] = 0;
+    
     // Some reasonable default
     setAcceleration(1);
-    setMaxSpeed(1);
 }
 
 void PongStepper::setMaxSpeed(float speed)
 {
     if (speed < 0.0)
-       speed = -speed;
+    {
+        speed = -speed;
+    }
     if (_maxSpeed != speed)
     {
-	_maxSpeed = speed;
-	_cmin = 1000000.0 / speed;
-	// Recompute _n from current speed and adjust speed if accelerating or cruising
-	if (_n > 0)
-	{
-	    _n = (long)((_speed * _speed) / (2.0 * _acceleration)); // Equation 16
-	    computeNewSpeed();
-	}
+        _maxSpeed = speed;
+        _cmin = 1000000.0 / speed;
+        // Recompute _n from current speed and adjust speed if accelerating or cruising
+        if (_n > 0)
+        {
+            _n = (long)((_speed * _speed) / (2.0 * _acceleration)); // Equation 16
+            computeNewSpeed();
+        }
     }
 }
 
@@ -209,11 +245,6 @@ void PongStepper::setAcceleration(float acceleration)
     }
 }
 
-float   PongStepper::acceleration()
-{
-    return _acceleration;
-}
-
 void PongStepper::setSpeed(float speed)
 {
     if (speed == _speed)
@@ -224,7 +255,7 @@ void PongStepper::setSpeed(float speed)
     else
     {
 	_stepInterval = fabs(1000000.0 / speed);
-	setDirection((speed > 0.0) ? DIRECTION_CW : DIRECTION_CCW);
+	this->setDirection((speed > 0.0) ? true : false);
     }
     _speed = speed;
 }
@@ -237,117 +268,27 @@ float PongStepper::speed()
 // Subclasses can override
 void PongStepper::step(long step)
 {
-   step1(step);
+	(void)(step); // Unused
+
+    // _pin[0] is step, _pin[1] is direction
+
+    digitalWrite(this->_pin[1], this->_direction ^ _pinInverted[1]);
+    digitalWrite(this->_pin[0],HIGH);
+    // Caution 200ns setup time 
+    // Delay the minimum allowed pulse width
+    // delayMicroseconds(_minPulseWidth);
+    // digitalWrite(this->_pin[0],LOW);
+    this->shouldClear = true;
 }
 
-void PongStepper::stepLow()
-{
-    setOutputPins(_direction == DIRECTION_CCW ? 0b10 : 0b00);
-}
+// void PongStepper::setOutputPins(uint8_t mask)
+// {
+//     uint8_t numpins = 2;
+//     uint8_t i;
+//     for (i = 0; i < numpins; i++)
+// 	digitalWrite(_pin[i], (mask & (1 << i)) ? (HIGH ^ _pinInverted[i]) : (LOW ^ _pinInverted[i]));
+// }
 
-long PongStepper::stepForward()
-{
-    // Clockwise
-    _currentPos += 1;
-	step(_currentPos);
-	_lastStepTime = micros();
-    return _currentPos;
-}
-
-long PongStepper::stepBackward()
-{
-    // Counter-clockwise
-    _currentPos -= 1;
-	step(_currentPos);
-	_lastStepTime = micros();
-    return _currentPos;
-}
-
-// You might want to override this to implement eg serial output
-// bit 0 of the mask corresponds to _pin[0]
-// bit 1 of the mask corresponds to _pin[1]
-// ....
-void PongStepper::setOutputPins(uint8_t mask)
-{
-    uint8_t numpins = 2;
-    uint8_t i;
-    for (i = 0; i < numpins; i++)
-	digitalWrite(_pin[i], (mask & (1 << i)) ? (HIGH ^ _pinInverted[i]) : (LOW ^ _pinInverted[i]));
-}
-
-// 1 pin step function (ie for stepper drivers)
-// This is passed the current step number (0 to 7)
-// Subclasses can override
-void PongStepper::step1(long step)
-{
-    (void)(step); // Unused
-
-    setOutputPins(_direction == DIRECTION_CW ? 0b11 : 0b01); // step HIGH
-}
-
-void PongStepper::stepSingle()
-{
-    setOutputPins(_direction == DIRECTION_CW ? 0b11 : 0b01);
-}
-
-void PongStepper::setAxis(Axis axis)
-{
-    this->axis = axis;
-    PongStepper::instances[static_cast<int>(axis)] = this;
-}
-
-void PongStepper::setTimer(uint8_t timerIndex)
-{
-    this->ITimer = new RPI_PICO_Timer(timerIndex);
-}
-
-#ifdef ARDUINO_ARCH_RP2040
-void PongStepper::setTimer(RPI_PICO_Timer *iTimer)
-{
-    this->ITimer = iTimer;
-}
-#endif
-
-bool PongStepper::runX(struct repeating_timer *t)
-{
-    return PongStepper::instances[0]->run();
-}
-
-bool PongStepper::runY(struct repeating_timer *t)
-{
-    return PongStepper::instances[1]->run();
-}
-
-void PongStepper::setDirection(StepDirection dir)
-{
-    this->_direction = dir;
-
-    setOutputPins(_direction ? 0b10 : 0b00); 
-}
-
-// Prevents power consumption on the outputs
-void    PongStepper::disableOutputs()
-{ 
-    setOutputPins(0); // Handles inversion automatically
-    if (_enablePin != 0xff)
-    {
-        pinMode(_enablePin, OUTPUT);
-        digitalWrite(_enablePin, LOW ^ _enableInverted);
-    }
-}
-
-void PongStepper::enableOutputs()
-{
-
-    pinMode(_pin[0], OUTPUT);
-    pinMode(_pin[1], OUTPUT);
-
-    if (_enablePin != 0xff)
-    {
-        pinMode(_enablePin, OUTPUT);
-        digitalWrite(_enablePin, HIGH ^ _enableInverted);
-    }
-}
 
 void PongStepper::setMinPulseWidth(unsigned int minWidth)
 {
@@ -377,8 +318,6 @@ void PongStepper::setPinsInverted(bool pin1Invert, bool pin2Invert, bool pin3Inv
 {    
     _pinInverted[0] = pin1Invert;
     _pinInverted[1] = pin2Invert;
-    _pinInverted[2] = pin3Invert;
-    _pinInverted[3] = pin4Invert;
     _enableInverted = enableInvert;
 }
 
@@ -386,7 +325,26 @@ void PongStepper::setPinsInverted(bool pin1Invert, bool pin2Invert, bool pin3Inv
 void PongStepper::runToPosition()
 {
     while (run())
-	YIELD; // Let system housekeeping occur
+	;
+}
+
+boolean PongStepper::runSpeedToPosition()
+{
+    if (_targetPos == _currentPos)
+	{
+        return false;
+    }
+
+    if (_targetPos >_currentPos)
+	{
+        this->setDirection(true);
+    }
+    else
+	{
+        this->setDirection(false);
+    }
+
+    return runSpeed();
 }
 
 // Blocks until the new target position is reached
@@ -410,5 +368,5 @@ void PongStepper::stop()
 
 bool PongStepper::isRunning()
 {
-    return !(_speed == 0.0 && _targetPos == _currentPos && this->shouldClear == false);
+    return !(_speed == 0.0 && _targetPos == _currentPos && !this->shouldClear);
 }

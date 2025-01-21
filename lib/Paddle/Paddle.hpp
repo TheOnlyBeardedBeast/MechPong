@@ -43,7 +43,7 @@ public:
     static void run();
     static bool isRunning();
 
-    int stepIndex = 0;
+    float stepIndex = 0;
 private:
     int _pinA;
     int _pinB;

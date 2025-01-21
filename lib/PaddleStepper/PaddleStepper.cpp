@@ -10,6 +10,18 @@ void PaddleStepper::moveTo(long absolute)
     }
 }
 
+void PaddleStepper::setDirection(bool dir)
+{
+    this->_direction = dir;
+
+    digitalWrite(this->_pin[1], this->_direction ^ _pinInverted[1]);
+
+    if(this->subscriber != NULL)
+    {
+        this->subscriber->setDirection(dir);
+    }
+}
+
 void PaddleStepper::move(long relative)
 {
     moveTo(_currentPos + relative);
@@ -33,7 +45,7 @@ boolean PaddleStepper::runSpeed()
 
     if ( delta >= _stepInterval)
     {
-	if (_direction == DIRECTION_CW)
+	if (_direction == true)
 	{
 	    // Clockwise
 	    _currentPos += 1;
@@ -84,6 +96,11 @@ void PaddleStepper::clear()
 {
     this->shouldClear = false;
     digitalWrite(this->_pin[0],LOW);
+
+    if(this->subscriber != NULL)
+    {
+        this->subscriber->clear();
+    }
 }
 
 void PaddleStepper::computeNewSpeed()
@@ -141,7 +158,7 @@ void PaddleStepper::computeNewSpeed()
     {
 	// First step from stopped
 	_cn = _c0;
-	_direction = (distanceTo > 0) ? true : false;
+	this->setDirection((distanceTo > 0) ? true : false);
     }
     else
     {
@@ -248,7 +265,7 @@ void PaddleStepper::setSpeed(float speed)
     else
     {
 	_stepInterval = fabs(1000000.0 / speed);
-	_direction = (speed > 0.0) ? true : false;
+	this->setDirection((speed > 0.0) ? true : false);
     }
     _speed = speed;
 }
@@ -267,11 +284,13 @@ void PaddleStepper::step(long step)
 
     digitalWrite(this->_pin[1], this->_direction ^ _pinInverted[1]);
     digitalWrite(this->_pin[0],HIGH);
-    // Caution 200ns setup time 
-    // Delay the minimum allowed pulse width
-    // delayMicroseconds(_minPulseWidth);
-    // digitalWrite(this->_pin[0],LOW);
+
     this->shouldClear = true;
+
+    if(this->subscriber != NULL)
+    {
+        this->subscriber->step(step);
+    }
 }
 
 // void PaddleStepper::setOutputPins(uint8_t mask)
@@ -330,11 +349,11 @@ boolean PaddleStepper::runSpeedToPosition()
 
     if (_targetPos >_currentPos)
 	{
-        _direction = true;
+        this->setDirection(true);
     }
     else
 	{
-        _direction = false;
+        this->setDirection(false);
     }
 
     return runSpeed();
