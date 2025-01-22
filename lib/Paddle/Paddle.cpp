@@ -24,7 +24,7 @@ void Paddle::initializeStepper(int step, int dir)
 
     this->_stepper = new PaddleStepper(step,dir);
     this->_stepper->setMaxSpeed(1200);
-    this->_stepper->setAcceleration(3000);
+    this->_stepper->setAcceleration(4800);
 }
 
 void Paddle::center()
@@ -51,26 +51,24 @@ int Paddle::readB()
 
 void Paddle::increment()
 {
-    this->stepIndex+=0.25f;
+    this->stepIndex++;
 
-    int delta = stepIndex > 0 ? floor(stepIndex) : ceil(stepIndex);
-
-    if(delta==1){
+    if(this->stepIndex==16){
         long target = constrain(this->_stepper->targetPosition() + 1, 0, PADDLE_LIMIT);
         this->_stepper->moveTo(target);
-        this->stepIndex = 0;
+        this->stepIndex = 8;
     }
 }
 
 void Paddle::decrement()
 {
-    this->stepIndex-=0.25f;
-    int delta = stepIndex > 0 ? floor(stepIndex) : ceil(stepIndex);
-    if(delta == -1)
+    this->stepIndex--;
+
+    if(this->stepIndex == 0)
     {
         long target = constrain(this->_stepper->targetPosition() - 1, 0, PADDLE_LIMIT);
         this->_stepper->moveTo(target);
-        this->stepIndex = 0;
+        this->stepIndex = 8;
     }
     
 }
@@ -122,9 +120,8 @@ void Paddle::setAcceleration(float acceleration)
 
 void Paddle::isrReadEncoder0()
 {
-    int a = Paddle::instances[0]->readA();
     int b = Paddle::instances[0]->readB();
-    if(a != b)
+    if(b == LOW)
     {
         Paddle::instances[0]->increment();
     } else {
@@ -136,8 +133,8 @@ void Paddle::isrReadEncoder01()
 {
 
     int a = Paddle::instances[0]->readA();
-    int b = Paddle::instances[0]->readB();
-    if(a == b)
+
+    if(a == HIGH)
     {
         Paddle::instances[0]->increment();
     } else {
@@ -147,12 +144,25 @@ void Paddle::isrReadEncoder01()
 
 void Paddle::isrReadEncoder10()
 {
-    Paddle::instances[1]->changeTarget(!Paddle::instances[1]->readB());
+    int b = Paddle::instances[1]->readB();
+    if(b == LOW)
+    {
+        Paddle::instances[1]->increment();
+    } else {
+        Paddle::instances[1]->decrement();
+    }
 }
 
 void Paddle::isrReadEncoder11()
 {
-    Paddle::instances[0]->changeTarget(Paddle::instances[1]->readA());
+    int a = Paddle::instances[1]->readA();
+
+    if(a == HIGH)
+    {
+        Paddle::instances[1]->increment();
+    } else {
+        Paddle::instances[1]->decrement();
+    }
 }
 
 void Paddle::calibrate()

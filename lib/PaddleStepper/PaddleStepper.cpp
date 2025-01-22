@@ -6,12 +6,15 @@ void PaddleStepper::moveTo(long absolute)
     {
 	_targetPos = absolute;
 	computeNewSpeed();
-	// compute new n?
     }
 }
 
 void PaddleStepper::setDirection(bool dir)
 {
+    if(this->_direction == dir){
+        return;
+    }
+
     this->_direction = dir;
 
     digitalWrite(this->_pin[1], this->_direction ^ _pinInverted[1]);
@@ -20,6 +23,8 @@ void PaddleStepper::setDirection(bool dir)
     {
         this->subscriber->setDirection(dir);
     }
+
+    this->stop();
 }
 
 void PaddleStepper::move(long relative)
@@ -34,13 +39,20 @@ boolean PaddleStepper::runSpeed()
 {
     // Dont do anything unless we actually have a step interval
     if (!_stepInterval)
-	return false;
+	{
+        return false;
+    }
 
     unsigned long time = micros();  
     unsigned long delta = time - _lastStepTime;
 
-    if(this->shouldClear && delta >= this->_minPulseWidth){
-        this->clear();
+    if(this->shouldClear)
+    {
+        if(delta >= this->_minPulseWidth){
+            this->clear();
+        }
+
+        return false;
     }
 
     if ( delta >= _stepInterval)
@@ -385,6 +397,7 @@ bool PaddleStepper::isRunning()
 
 void PaddleStepper::subscribe(PaddleSubscriber *subscriber){
     this->subscriber = subscriber;
+    this->subscriber->setDirection(this->_direction);
 }
 void PaddleStepper::unsubscribe() {
     this->subscriber = NULL;

@@ -24,6 +24,14 @@ void setup() {
   delay(1000);
 }
 
+void setup1()
+{
+  delay(2000);
+}
+
 void loop() {
+}
+
+void loop1() {
   Paddle::run();
 }
