@@ -51,7 +51,7 @@ int Paddle::readB()
 
 void Paddle::increment()
 {
-    this->stepIndex+=0.5f;
+    this->stepIndex+=0.25f;
 
     int delta = stepIndex > 0 ? floor(stepIndex) : ceil(stepIndex);
 
@@ -64,7 +64,7 @@ void Paddle::increment()
 
 void Paddle::decrement()
 {
-    this->stepIndex-=0.5f;
+    this->stepIndex-=0.25f;
     int delta = stepIndex > 0 ? floor(stepIndex) : ceil(stepIndex);
     if(delta == -1)
     {
