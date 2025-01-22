@@ -24,7 +24,7 @@ void Paddle::initializeStepper(int step, int dir)
 
     this->_stepper = new PaddleStepper(step,dir);
     this->_stepper->setMaxSpeed(1200);
-    this->_stepper->setAcceleration(800);
+    this->_stepper->setAcceleration(3000);
 }
 
 void Paddle::center()
