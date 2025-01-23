@@ -205,6 +205,7 @@ protected:
     /// Current direction motor is spinning in
     /// Protected because some peoples subclasses need it to be so
     boolean _direction; // 1 == CW
+    boolean _futureDirection;
     
 private:      // 0, 1, 2, 4, 8, See MotorInterfaceType
 

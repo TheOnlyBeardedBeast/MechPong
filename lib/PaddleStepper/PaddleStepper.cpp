@@ -170,7 +170,8 @@ void PaddleStepper::computeNewSpeed()
     {
 	// First step from stopped
 	_cn = _c0;
-	this->setDirection((distanceTo > 0) ? true : false);
+	// this->_direction = ((distanceTo > 0) ? true : false);
+    this->_futureDirection = ((distanceTo > 0) ? true : false);
     }
     else
     {
@@ -277,7 +278,8 @@ void PaddleStepper::setSpeed(float speed)
     else
     {
 	_stepInterval = fabs(1000000.0 / speed);
-	this->setDirection((speed > 0.0) ? true : false);
+	// this->_direction = ((speed > 0.0) ? true : false);
+    this->_futureDirection = ((speed > 0.0) ? true : false);
     }
     _speed = speed;
 }
@@ -294,7 +296,13 @@ void PaddleStepper::step(long step)
 
     // _pin[0] is step, _pin[1] is direction
 
-    digitalWrite(this->_pin[1], this->_direction ^ _pinInverted[1]);
+    if(this->_futureDirection != this->_direction)
+    {
+        this->_direction = this->_futureDirection;
+        digitalWrite(this->_pin[1], this->_direction ^ _pinInverted[1]);
+        delayMicroseconds(5);
+    }
+
     digitalWrite(this->_pin[0],HIGH);
 
     this->shouldClear = true;
@@ -361,11 +369,13 @@ boolean PaddleStepper::runSpeedToPosition()
 
     if (_targetPos >_currentPos)
 	{
-        this->setDirection(true);
+        // this->_direction = (true);
+        this->_futureDirection = (true);
     }
     else
 	{
-        this->setDirection(false);
+        // this->_direction = (false);
+        this->_futureDirection = (false);
     }
 
     return runSpeed();

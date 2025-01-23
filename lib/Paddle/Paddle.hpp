@@ -42,8 +42,10 @@ public:
     static void centerAll();
     static void run();
     static bool isRunning();
+    static void update();
 
     byte stepIndex = 8;
+    long futureTarget = 0;
 private:
     int _pinA;
     int _pinB;
@@ -54,7 +56,6 @@ private:
     int readB();
     void increment();
     void decrement();
-    void changeTarget(bool direction);
 
 public:
     void subscribe(PaddleSubscriber *subscriber)

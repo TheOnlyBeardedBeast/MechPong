@@ -24,7 +24,7 @@ void Paddle::initializeStepper(int step, int dir)
 
     this->_stepper = new PaddleStepper(step,dir);
     this->_stepper->setMaxSpeed(1200);
-    this->_stepper->setAcceleration(4800);
+    this->_stepper->setAcceleration(9600);
 }
 
 void Paddle::center()
@@ -54,8 +54,9 @@ void Paddle::increment()
     this->stepIndex++;
 
     if(this->stepIndex==16){
-        long target = constrain(this->_stepper->targetPosition() + 1, 0, PADDLE_LIMIT);
-        this->_stepper->moveTo(target);
+        // long target = constrain(this->_stepper->targetPosition() + 1, 0, PADDLE_LIMIT);
+        // this->_stepper->moveTo(target);
+        this->futureTarget = constrain(this->futureTarget + 1, 0, PADDLE_LIMIT);
         this->stepIndex = 8;
     }
 }
@@ -66,26 +67,12 @@ void Paddle::decrement()
 
     if(this->stepIndex == 0)
     {
-        long target = constrain(this->_stepper->targetPosition() - 1, 0, PADDLE_LIMIT);
-        this->_stepper->moveTo(target);
+        // long target = constrain(this->_stepper->targetPosition() - 1, 0, PADDLE_LIMIT);
+        // this->_stepper->moveTo(target);
+        this->futureTarget = constrain(this->futureTarget - 1, 0, PADDLE_LIMIT);
         this->stepIndex = 8;
     }
     
-}
-
-void Paddle::changeTarget(bool direction)
-{
-    // if (this->stepIndex == 0)
-    // {
-        if(direction)
-        {
-            this->increment();
-        } else {
-            this->decrement();
-        }
-    // }
-    
-    // this->stepIndex = (this->stepIndex + 1) % PADDLE_SENSITIVITY;
 }
 
 Paddle::~Paddle()
@@ -227,8 +214,17 @@ bool Paddle::isRunning()
     return Paddle::instances[0]->needsToMove() || Paddle::instances[1]->needsToMove();
 }
 
+void Paddle::update()
+{
+    Paddle::instances[0]->_stepper->moveTo(Paddle::instances[0]->futureTarget);
+    Paddle::instances[1]->_stepper->moveTo(Paddle::instances[1]->futureTarget);
+}
+
 void Paddle::attachPaddles()
 {
+    Paddle::instances[0]->futureTarget = Paddle::instances[0]->_stepper->currentPosition();
+    Paddle::instances[1]->futureTarget = Paddle::instances[1]->_stepper->currentPosition();
+    
 
 #ifdef ARDUINO_ARCH_RP2040
   attachInterrupt(
