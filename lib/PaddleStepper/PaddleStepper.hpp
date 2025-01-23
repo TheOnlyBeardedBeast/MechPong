@@ -174,7 +174,7 @@ public:
 
     void clear();
 
-    void setDirection(bool dir);
+    void updateDirection();
 
 protected:
     /// Forces the library to compute a new instantaneous speed and set that as
