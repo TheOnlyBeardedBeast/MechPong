@@ -18,7 +18,7 @@ void PaddleStepper::updateDirection()
 
         if (this->subscriber != NULL)
         {
-            this->subscriber->setDirection(this->_direction);
+            this->subscriber->externalUpdateDirection(this->_direction);
         }
     }
 }
@@ -303,7 +303,7 @@ void PaddleStepper::step(long step)
 
     if (this->subscriber != NULL)
     {
-        this->subscriber->step(step);
+        this->subscriber->externalStep(step);
     }
 }
 
@@ -390,7 +390,7 @@ bool PaddleStepper::isRunning()
 void PaddleStepper::subscribe(PaddleSubscriber *subscriber)
 {
     this->subscriber = subscriber;
-    this->subscriber->setDirection(this->_direction);
+    this->subscriber->externalUpdateDirection(this->_direction);
 }
 void PaddleStepper::unsubscribe()
 {

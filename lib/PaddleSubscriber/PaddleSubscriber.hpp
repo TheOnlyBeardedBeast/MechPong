@@ -5,8 +5,8 @@
 
 class PaddleSubscriber {
 public:
-    virtual void setDirection(bool direction);
-    virtual void step(long step);
+    virtual void externalUpdateDirection(bool direction);
+    virtual void externalStep(long step);
     virtual void clear();
 };
 
