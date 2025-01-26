@@ -204,6 +204,9 @@ boolean PongStepper::run()
 
 PongStepper::PongStepper(uint8_t pin1, uint8_t pin2)
 {
+    pinMode(pin1,OUTPUT);
+    pinMode(pin2,OUTPUT);
+
     _currentPos = 0;
     _targetPos = 0;
     _speed = 0.0;
@@ -305,8 +308,10 @@ void PongStepper::step(long step)
     this->shouldClear = true;
 }
 
-void PongStepper::externalStep()
+void PongStepper::externalStep(long step)
 {
+    (void)(step);
+    
     if (this->_direction == true)
     {
         // Clockwise

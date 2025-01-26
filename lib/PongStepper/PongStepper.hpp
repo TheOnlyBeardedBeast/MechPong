@@ -173,7 +173,7 @@ public:
     void updateDirection();
 
     void externalUpdateDirection(bool dir);
-    void externalStep();
+    void externalStep(long step);
 
 protected:
     /// Forces the library to compute a new instantaneous speed and set that as

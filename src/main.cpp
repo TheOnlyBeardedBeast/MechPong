@@ -5,6 +5,7 @@
 
 Paddle paddle0;
 Paddle paddle1;
+PongStepper y(18,19);
 
 void setup() {
   paddle0.initializeStepper(2,3);
@@ -17,6 +18,7 @@ void setup() {
   Paddle::instances[1] = &paddle1;
 
   Paddle::attachPaddles();
+  paddle0.subscribe(&y);
 
   pinMode(LED_BUILTIN,OUTPUT);
   digitalWrite(LED_BUILTIN,HIGH);
@@ -35,4 +37,5 @@ void loop() {
 void loop1() {
   Paddle::update();
   Paddle::run();
+  // y.run();
 }

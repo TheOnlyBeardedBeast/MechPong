@@ -1,7 +1,4 @@
-#ifndef PaddleSubscriber_hpp
-#define PaddleSubscriber_hpp
-
-#include <StepDirection.hpp>
+#pragma once
 
 class PaddleSubscriber {
 public:
@@ -9,5 +6,3 @@ public:
     virtual void externalStep(long step);
     virtual void clear();
 };
-
-#endif
