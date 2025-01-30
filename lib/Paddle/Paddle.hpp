@@ -44,7 +44,7 @@ public:
     static bool isRunning();
     static void update();
 
-    byte stepIndex = 8;
+    byte stepIndex = 4;
     long futureTarget = 0;
 private:
     int _pinA;

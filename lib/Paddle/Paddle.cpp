@@ -53,11 +53,11 @@ void Paddle::increment()
 {
     this->stepIndex++;
 
-    if(this->stepIndex==16){
+    if(this->stepIndex==8){
         // long target = constrain(this->_stepper->targetPosition() + 1, 0, PADDLE_LIMIT);
         // this->_stepper->moveTo(target);
         this->futureTarget = constrain(this->futureTarget + 1, 0, PADDLE_LIMIT);
-        this->stepIndex = 8;
+        this->stepIndex = 4;
     }
 }
 
@@ -70,7 +70,7 @@ void Paddle::decrement()
         // long target = constrain(this->_stepper->targetPosition() - 1, 0, PADDLE_LIMIT);
         // this->_stepper->moveTo(target);
         this->futureTarget = constrain(this->futureTarget - 1, 0, PADDLE_LIMIT);
-        this->stepIndex = 8;
+        this->stepIndex = 4;
     }
     
 }
