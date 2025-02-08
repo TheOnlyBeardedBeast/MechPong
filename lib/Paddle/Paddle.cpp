@@ -53,11 +53,11 @@ void Paddle::increment()
 {
     this->stepIndex++;
 
-    if(this->stepIndex==8){
+    if(this->stepIndex==4){
         // long target = constrain(this->_stepper->targetPosition() + 1, 0, PADDLE_LIMIT);
         // this->_stepper->moveTo(target);
         this->futureTarget = constrain(this->futureTarget + 1, 0, PADDLE_LIMIT);
-        this->stepIndex = 4;
+        this->stepIndex = 2;
     }
 }
 
@@ -70,7 +70,7 @@ void Paddle::decrement()
         // long target = constrain(this->_stepper->targetPosition() - 1, 0, PADDLE_LIMIT);
         // this->_stepper->moveTo(target);
         this->futureTarget = constrain(this->futureTarget - 1, 0, PADDLE_LIMIT);
-        this->stepIndex = 4;
+        this->stepIndex = 2;
     }
     
 }
@@ -231,18 +231,18 @@ void Paddle::attachPaddles()
         digitalPinToInterrupt(
             Paddle::instances[0]->_pinA),
         Paddle::isrReadEncoder0, RISING);
-    attachInterrupt(
-        digitalPinToInterrupt(
-            Paddle::instances[0]->_pinB),
-        Paddle::isrReadEncoder01, RISING);
+    // attachInterrupt(
+    //     digitalPinToInterrupt(
+    //         Paddle::instances[0]->_pinB),
+    //     Paddle::isrReadEncoder01, RISING);
     attachInterrupt(
         digitalPinToInterrupt(
             Paddle::instances[1]->_pinA),
         Paddle::isrReadEncoder10, RISING);
-    attachInterrupt(
-        digitalPinToInterrupt(
-            Paddle::instances[1]->_pinB),
-        Paddle::isrReadEncoder11, RISING);
+    // attachInterrupt(
+    //     digitalPinToInterrupt(
+    //         Paddle::instances[1]->_pinB),
+    //     Paddle::isrReadEncoder11, RISING);
 #endif
 #ifdef ARDUINO_SAM_DUE
   attachInterrupt(
