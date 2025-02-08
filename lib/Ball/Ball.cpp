@@ -4,52 +4,56 @@
 
 Ball *Ball::instance;
 
-int mapAngleToSpeed(int angle)
+int mapAngleToSpeedX(int angle)
 {
     return static_cast<int>((1 / abs(sin(angle * PI / 180))) * MAX_SPEED);
 }
 
-void Ball::setMotors(PongStepper *xStepper, PongStepper *yStepper)
+int mapAngleToSpeedY(int angle)
 {
-    this->_xStepper = xStepper;
-    this->_yStepper = yStepper;
+    return static_cast<int>((1 / abs(cos(angle * PI / 180))) * MAX_SPEED);
 }
 
+void Ball::init(size_t stepX, size_t dirX, size_t stepY, size_t dirY)
+{
+    pinMode(stepX, OUTPUT);
+    pinMode(dirX,OUTPUT);
+    pinMode(stepY, OUTPUT);
+    pinMode(dirY,OUTPUT);
+
+    this->_xStepper = new PongStepper(stepX,dirX);
+    this->_yStepper = new PongStepper(stepY,dirY);
+}
 
 void Ball::setposition(int x, int y)
 {
-    this->setposition(x, y, mapAngleToSpeed(this->lastAngle));
+    this->setposition(x, y);
 }
 
 void Ball::setCurrentPosition(int x, int y)
 {
-    // this->_xStepper->setCurrentPosition(x);
-    // this->_yStepper->setCurrentPosition(y);
+    this->_xStepper->setCurrentPosition(x);
+    this->_yStepper->setCurrentPosition(y);
 }
 
-void Ball::setposition(int x, int y, int speed)
+void Ball::setposition(int x, int y)
 {
-    // this->_xSteppers->setPosition(x, speed, START_SPEED, END_SPEED);
-    // this->_ySteppers->setPosition(y, speed, START_SPEED, END_SPEED);
-}
-
-void Ball::setposition(int x, int y, int speed, int startSpeed, int endSpeed)
-{
-    // this->_xSteppers->setPosition(x, speed, startSpeed, endSpeed);
-    // this->_ySteppers->setPosition(y, speed, startSpeed, endSpeed);
+    this->_xStepper->moveTo(x);
+    this->_yStepper->moveTo(y);
 }
 
 void Ball::stop()
 {
-    // this->_xSteppers->stop();
-    // this->_ySteppers->stop();
+    this->_xStepper->stop();
+    this->_yStepper->stop();
 }
 
 Point Ball::getPosition()
 {
     Point result = Point();
-    // result.x = this->_xStepper->getPosition();
-    // result.y = this->_yStepper->getPosition();
+
+    result.x = this->_xStepper->currentPosition();
+    result.y = this->_yStepper->currentPosition();
 
     return result;
 }
@@ -87,8 +91,7 @@ void Ball::center()
 
 bool Ball::needsToMove()
 {
-    // return this->_xSteppers->isMoving() || this->_ySteppers->isMoving();
-    return true;
+    return this->_xStepper->isRunning() || this->_yStepper->isRunning();
 }
 
 void Ball::bounce()
@@ -138,24 +141,12 @@ void Ball::shootAngle(float angleRadians)
     int newX = constrain(ballPos.x + round(dx * t), 0, this->limits.x);
     int newY = constrain(ballPos.y + round(dy * t), 0, this->limits.y);
 
-    // speed modification
-    float modifier = abs(sin(angleRadians) - 0.70710678118) * 2;
-    int _startSpeed = ballPos.x == 0 || ballPos.x == this->limits.x ? START_SPEED : START_SPEED + (int)(START_SPEED * modifier);
-    int _endSpeed = newX == 0 || newX == this->limits.x ? END_SPEED : END_SPEED + (int)(END_SPEED * modifier);
+    this->_xStepper->setMaxSpeed(mapAngleToSpeedX(this->lastAngle));
+    this->_yStepper->setMaxSpeed(mapAngleToSpeedY(this->lastAngle));
 
-    this->setposition(newX, newY, mapAngleToSpeed(this->lastAngle), _startSpeed, _endSpeed);
-    // if (newX != 0 && newX != this->limits.x)
-    // {
-    //     // will bounce
-    //     if (this->lastAngle < 180)
-    //     {
-    //         this->setNextTarget(min(newX + 50, this->limits.x), newY);
-    //     }
-    //     else
-    //     {
-    //         this->setNextTarget(max(newX - 50, 0), newY);
-    //     }
-    // }
+    this->setposition(newX, newY);
+
+    // TODO: whole route planning here
 }
 
 uint16_t Ball::inverseAngle(int16_t angle)
@@ -168,7 +159,8 @@ uint16_t Ball::inverseAngle(int16_t angle)
     return 540 - angle;
 }
 
-void Ball::stopNow()
+Ball::~Ball()
 {
-    // this->_steppers->stopNow();
+    delete this->_xStepper;
+    delete this->_yStepper;
 }

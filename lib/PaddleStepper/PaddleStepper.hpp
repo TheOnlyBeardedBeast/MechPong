@@ -170,7 +170,7 @@ public:
     void subscribe(PaddleSubscriber *subscriber);
     void unsubscribe();
 
-    virtual ~PaddleStepper() = default;
+    virtual ~ PaddleStepper() = default;
 
     void clear();
 
@@ -277,7 +277,5 @@ private:      // 0, 1, 2, 4, 8, See MotorInterfaceType
 
     PaddleSubscriber *subscriber = NULL;
 
-    
-    
     bool shouldClear = false;
 };

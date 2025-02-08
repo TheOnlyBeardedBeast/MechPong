@@ -11,9 +11,7 @@ public:
 
     Point limits;
 
-    /// @brief Sets the motors which moves the balls
-    /// @param _steppers
-    void setMotors(PongStepper *xStepper, PongStepper *yStepper);
+    void init(size_t stepX, size_t dirX, size_t stepY, size_t dirY);
 
     /// @brief Sets the target position
     /// @param x
@@ -25,20 +23,9 @@ public:
     /// @param y
     void setCurrentPosition(int x, int y);
 
-    /// @brief Sets an absolute position to go to with a custom speed
-    /// @param x
-    /// @param y
-    /// @param speed
-    void setposition(int x, int y, int speed);
-
-    void setposition(int x, int y, int speed, int startSpeed, int endSpeed);
-
     /// @brief Starts the stopping process
     /// @attention Doesnt stop the stepper immediatelly
     void stop();
-
-    /// @brief Stops the motor immediatelly
-    void stopNow();
 
     /// @brief Calibrates the game setting the min and max limits
     void calibrate();
@@ -82,9 +69,11 @@ public:
         return this->_yStepper;
     }
 
+    ~Ball();
+
 private:
-    PongStepper *_xStepper = nullptr;
-    PongStepper *_yStepper = nullptr;
+    PongStepper *_xStepper = NULL;
+    PongStepper *_yStepper = NULL;
 
     int dx;
     int dy;
