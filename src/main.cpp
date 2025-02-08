@@ -7,6 +7,7 @@ Paddle paddle0;
 Paddle paddle1;
 PongStepper y(21,20);
 
+
 void setup() {
   paddle0.initializeStepper(4,5);
   paddle0.initializeEncoder(0,1);
@@ -16,6 +17,9 @@ void setup() {
 
   Paddle::instances[0] = &paddle0;
   Paddle::instances[1] = &paddle1;
+
+  y.setMaxSpeed(1200);
+  y.setAcceleration(9600);
 
   Paddle::attachPaddles();
   paddle0.subscribe(&y);
@@ -37,5 +41,5 @@ void loop() {
 void loop1() {
   Paddle::update();
   Paddle::run();
-  // y.run();
+  y.run();
 }

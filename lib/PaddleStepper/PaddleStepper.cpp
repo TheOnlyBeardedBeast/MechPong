@@ -6,6 +6,11 @@ void PaddleStepper::moveTo(long absolute)
     {
         _targetPos = absolute;
         computeNewSpeed();
+
+        if(this->subscriber != NULL)
+        {
+            this->subscriber->moveTo(absolute);
+        }
     }
 }
 
@@ -16,10 +21,11 @@ void PaddleStepper::updateDirection()
         this->_direction = this->_futureDirection;
         digitalWrite(this->_pin[1], this->_direction ^ _pinInverted[1]);
 
-        if (this->subscriber != NULL)
-        {
-            this->subscriber->externalUpdateDirection(this->_direction);
-        }
+        // Depracted
+        // if (this->subscriber != NULL)
+        // {
+        //     this->subscriber->externalUpdateDirection(this->_direction);
+        // }
     }
 }
 
@@ -112,10 +118,11 @@ void PaddleStepper::clear()
     this->shouldClear = false;
     digitalWrite(this->_pin[0], LOW);
 
-    if (this->subscriber != NULL)
-    {
-        this->subscriber->clear();
-    }
+    // Depracted
+    // if (this->subscriber != NULL)
+    // {
+    //     this->subscriber->clear();
+    // }
 }
 
 void PaddleStepper::computeNewSpeed()
@@ -301,10 +308,11 @@ void PaddleStepper::step(long step)
 
     this->shouldClear = true;
 
-    if (this->subscriber != NULL)
-    {
-        this->subscriber->externalStep(step);
-    }
+    // Depracted
+    // if (this->subscriber != NULL)
+    // {
+    //     this->subscriber->externalStep(step);
+    // }
 }
 
 void PaddleStepper::setMinPulseWidth(unsigned int minWidth)

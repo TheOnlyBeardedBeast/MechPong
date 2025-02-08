@@ -5,4 +5,5 @@ public:
     virtual void externalUpdateDirection(bool direction);
     virtual void externalStep(long step);
     virtual void clear();
+    virtual void moveTo(long relative);
 };

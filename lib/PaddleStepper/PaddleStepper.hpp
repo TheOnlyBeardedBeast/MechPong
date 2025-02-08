@@ -176,6 +176,11 @@ public:
 
     void updateDirection();
 
+    /// Set the target position relative to the current position
+    /// \param[in] relative The desired position relative to the current position. Negative is
+    /// anticlockwise from the current position.
+    void    move(long relative);
+
 protected:
     /// Forces the library to compute a new instantaneous speed and set that as
     /// the current speed. It is called by
@@ -272,10 +277,7 @@ private:      // 0, 1, 2, 4, 8, See MotorInterfaceType
 
     PaddleSubscriber *subscriber = NULL;
 
-    /// Set the target position relative to the current position
-    /// \param[in] relative The desired position relative to the current position. Negative is
-    /// anticlockwise from the current position.
-    void    move(long relative);
+    
     
     bool shouldClear = false;
 };
