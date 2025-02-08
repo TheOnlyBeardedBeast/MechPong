@@ -5,14 +5,14 @@
 
 Paddle paddle0;
 Paddle paddle1;
-PongStepper y(18,19);
+PongStepper y(21,20);
 
 void setup() {
-  paddle0.initializeStepper(2,3);
-  paddle0.initializeEncoder(4,5);
+  paddle0.initializeStepper(4,5);
+  paddle0.initializeEncoder(0,1);
 
-  paddle1.initializeStepper(6,7);
-  paddle1.initializeEncoder(8,9);
+  paddle1.initializeStepper(10,11);
+  paddle1.initializeEncoder(14,15);
 
   Paddle::instances[0] = &paddle0;
   Paddle::instances[1] = &paddle1;
