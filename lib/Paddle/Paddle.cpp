@@ -108,6 +108,7 @@ void Paddle::setAcceleration(float acceleration)
 void Paddle::isrReadEncoder0()
 {
     int b = Paddle::instances[0]->readB();
+
     if(b == LOW)
     {
         Paddle::instances[0]->increment();
@@ -132,6 +133,7 @@ void Paddle::isrReadEncoder01()
 void Paddle::isrReadEncoder10()
 {
     int b = Paddle::instances[1]->readB();
+
     if(b == LOW)
     {
         Paddle::instances[1]->increment();
