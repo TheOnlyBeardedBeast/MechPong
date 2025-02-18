@@ -19,7 +19,12 @@ void PaddleStepper::updateDirection()
     if (this->_futureDirection != this->_direction)
     {
         this->_direction = this->_futureDirection;
-        digitalWrite(this->_pin[1], this->_direction ^ _pinInverted[1]);
+        if(this->_direction ^ _pinInverted[1])
+        {
+            sio_hw->gpio_set = (1 << this->_pin[1]);
+        } else {
+            sio_hw->gpio_clr =(1 << this->_pin[1]);
+        }
 
         // Depracted
         // if (this->subscriber != NULL)
@@ -45,8 +50,8 @@ boolean PaddleStepper::runSpeed()
         return false;
     }
 
-    unsigned long time = micros();
-    unsigned long delta = time - _lastStepTime;
+    unsigned int time = time_us_32();
+    unsigned int delta = time - _lastStepTime;
 
     if(this->_futureDirection != this->_direction && delta >= this->_stepInterval - 10 && delta < this->_stepInterval)
     {
@@ -116,7 +121,9 @@ void PaddleStepper::setCurrentPosition(long position)
 void PaddleStepper::clear()
 {
     this->shouldClear = false;
-    digitalWrite(this->_pin[0], LOW);
+    // digitalWrite(this->_pin[0], LOW);
+
+    sio_hw->gpio_clr = (1 << this->_pin[0]);
 
     // Depracted
     // if (this->subscriber != NULL)
@@ -304,7 +311,8 @@ void PaddleStepper::step(long step)
 
     // _pin[0] is step, _pin[1] is direction
 
-    digitalWrite(this->_pin[0], HIGH);
+    // digitalWrite(this->_pin[0], HIGH);
+    sio_hw->gpio_set = (1 << this->_pin[0]);
 
     this->shouldClear = true;
 

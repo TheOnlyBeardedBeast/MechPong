@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include <PaddleSubscriber.hpp>
+#include <pico/stdlib.h>
 
 
 class PaddleStepper
@@ -246,7 +247,7 @@ private:      // 0, 1, 2, 4, 8, See MotorInterfaceType
     unsigned long  _stepInterval;
 
     /// The last step time in microseconds
-    unsigned long  _lastStepTime;
+    unsigned int  _lastStepTime;
 
     /// The minimum allowed pulse width in microseconds
     unsigned int   _minPulseWidth;
