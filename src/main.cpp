@@ -12,8 +12,8 @@ void setup() {
   paddle0.initializeStepper(4,5);
   paddle0.initializeEncoder(0,1);
 
-  paddle1.initializeStepper(14,15);
-  paddle1.initializeEncoder(19,20);
+  paddle1.initializeStepper(10,11);
+  paddle1.initializeEncoder(14,15);
 
   Paddle::instances[0] = &paddle0;
   Paddle::instances[1] = &paddle1;
@@ -43,10 +43,10 @@ void loop() {
   // } else {
   //   digitalWrite(LED_BUILTIN,LOW);
   // }
-  delay(10000);
-  paddle0._stepper->moveTo(500);
-  delay(10000);
-  paddle0._stepper->moveTo(0);
+  delay(5000);
+  paddle1._stepper->moveTo(500);
+  delay(5000);
+  paddle1._stepper->moveTo(0);
 
 }
 
