@@ -26,7 +26,7 @@ void setup() {
   // y.setMaxSpeed(1200);
   // y.setAcceleration(9600);
 
-  // Paddle::attachPaddles();
+  Paddle::attachPaddles();
   // paddle0.subscribe(&y);
 
   pinMode(LED_BUILTIN,OUTPUT);
@@ -48,20 +48,20 @@ void loop() {
   //   digitalWrite(LED_BUILTIN,LOW);
   // }
   delay(5000);
-  paddle0._stepper->moveTo(200);
-  paddle1._stepper->moveTo(200);
+  // paddle0._stepper->moveTo(200);
+  // paddle1._stepper->moveTo(200);
   y.moveTo(200);
   x.moveTo(200);
   delay(5000);
-  paddle0._stepper->moveTo(0);
-  paddle1._stepper->moveTo(0);
+  // paddle0._stepper->moveTo(0);
+  // paddle1._stepper->moveTo(0);
   y.moveTo(0);
   x.moveTo(0);
 
 }
 
 void loop1() {
-  // Paddle::update();
+  Paddle::update();
   Paddle::run();
   y.run();
   x.run();
