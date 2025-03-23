@@ -7,10 +7,10 @@ Pong *game;
 volatile bool initialized = false;
 
 void setup() {
-  Serial.begin(115200);
-  while (!Serial)
-  {
-  }
+  // Serial.begin(115200);
+  // while (!Serial)
+  // {
+  // }
   
   initTrigTables();
 

@@ -132,24 +132,19 @@ void Pong::initMatch()
         this->ball->setposition(0, (GAMEPLAY_AREA_Y >> 1) + players[this->shooter]->paddle->getCenterRelativePosition());
     }
 
-    Serial.println("INIT_MATCH:DONE");
-    Serial.println(this->ball->isRunning());
+    // Serial.println("INIT_MATCH:DONE");
+    // Serial.println(this->ball->isRunning());
     this->gameState = GameState::MATCH_INIT_PROGRESS;
 }
 
 void Pong::initMatchProgress()
 {
-    bool printed = false;
-
-    while (this->ball->isRunning())
+    if (this->ball->isRunning())
     {
-        if(!printed){
-            Serial.println("From while");
-            this->ball->printInfo();
-        }
+        return;
     }
 
-    Serial.println("INIT_MATCH_PROGRESS:DONE");
+    // Serial.println("INIT_MATCH_PROGRESS:DONE");
     this->gameState = GameState::MATCH_INIT_DONE;
 }
 
@@ -161,7 +156,7 @@ void Pong::initMatchDone()
 
     Paddle::attachPaddles();
 
-    Serial.println("INIT_MATCH_DONE:DONE");
+    // Serial.println("INIT_MATCH_DONE:DONE");
     this->gameState = GameState::MATCH_SERVE;
 }
 
@@ -179,7 +174,7 @@ void Pong::serveMatch()
             float angle = ((modifier * 5.f) + (this->shooter == Player::Player1 ? 180.f : 0.0f));
 
         this->ball->shootDeg(angle,false);
-        Serial.println("SERVE:DONE");
+        // Serial.println("SERVE:DONE");
         this->gameState = GameState::SERVE_PROGRESS;
         return;
     }
@@ -199,7 +194,7 @@ void Pong::serveProgress()
     // Serial.println("Serve progress");
     // Serial.println("SERVE X:");
     // Serial.println(""+x);
-    Serial.println("SERVER_PROGRESS:DONE");
+    // Serial.println("SERVER_PROGRESS:DONE");
     this->gameState = GameState::MATCH_RUN;
 }
 
@@ -229,7 +224,7 @@ void Pong::runMatch()
             float angle = (shot + (nextShooter == Player::Player1 ? 180.f : 0.0f));
             this->ball->shootDeg(angle,false);
             this->shooter = nextShooter;
-            Serial.println("PADDLE_HIT:DONE");
+            // Serial.println("PADDLE_HIT:DONE");
             this->gameState = GameState::SERVE_PROGRESS;
             return;
         }
@@ -249,12 +244,12 @@ void Pong::runMatch()
 
             this->shooter = Player::NOONE;
             this->lastWinner = Player::NOONE;
-            Serial.println("GAME_WIN:DONE");
+            // Serial.println("GAME_WIN:DONE");
             this->gameState = GameState::CENTER;
             return;
         }
 
-        Serial.println("POINT_HIT:DONE");
+        // Serial.println("POINT_HIT:DONE");
         this->shooter = nextShooter;
         this->gameState = GameState::MATCH_INIT;
         return;
