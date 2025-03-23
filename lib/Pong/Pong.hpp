@@ -5,12 +5,14 @@
 #include <Paddle.hpp>
 #include <Player.hpp>
 #include <Ball.hpp>
+#include <PongPlayer.hpp>
 
 class Pong
 {
 public:
-    GameState gameState = GameState::CALIBRATION;
-    void init(Ball *ball, Paddle *paddle1, Paddle *paddle2);
+    GameState gameState = GameState::STAND_BY;
+    Ball *ball = NULL;
+    Pong();
     void calibrate();
     void initMatch();
     void initMatchProgress();
@@ -22,10 +24,12 @@ public:
     void bounceProgess();
     void center();
     void centerProgress();
+    void standBy();
+    void run();
 
 private:
-    Paddle *paddles[2] = {nullptr, nullptr};
-    Ball *ball = nullptr;
+    // Paddle *paddles[2] = {nullptr, nullptr};
+    PongPlayer *players[2] = {NULL,NULL};
     Player lastWinner = Player::NOONE;
     Player shooter = Player::NOONE;
     ScoreBoard score;

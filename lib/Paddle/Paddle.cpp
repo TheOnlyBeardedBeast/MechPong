@@ -3,6 +3,7 @@
 
 Paddle *Paddle::instances[2];
 bool Paddle::calibrated = false;
+bool Paddle::attached = false;
 
 Paddle::Paddle()
 {
@@ -23,8 +24,8 @@ void Paddle::initializeStepper(int step, int dir)
     pinMode(dir,OUTPUT);
 
     this->_stepper = new PaddleStepper(step,dir);
-    this->_stepper->setMaxSpeed(1200);
-    this->_stepper->setAcceleration(9600);
+    this->_stepper->setMaxSpeed(PADDLE_MAX_SPEED);
+    this->_stepper->setAcceleration(PADDLE_ACCELERATION);
 }
 
 void Paddle::center()
@@ -51,27 +52,27 @@ int Paddle::readB()
 
 void Paddle::increment()
 {
-    this->stepIndex++;
+    // this->stepIndex++;
 
-    if(this->stepIndex==4){
-        // long target = constrain(this->_stepper->targetPosition() + 1, 0, PADDLE_LIMIT);
-        // this->_stepper->moveTo(target);
+    // if(this->stepIndex==4){
+    //     // long target = constrain(this->_stepper->targetPosition() + 1, 0, PADDLE_LIMIT);
+    //     // this->_stepper->moveTo(target);
         this->futureTarget = constrain(this->futureTarget + 1, 0, PADDLE_LIMIT);
-        this->stepIndex = 2;
-    }
+    //     this->stepIndex = 2;
+    // }
 }
 
 void Paddle::decrement()
 {
-    this->stepIndex--;
+    // this->stepIndex--;
 
-    if(this->stepIndex == 0)
-    {
+    // if(this->stepIndex == 0)
+    // {
         // long target = constrain(this->_stepper->targetPosition() - 1, 0, PADDLE_LIMIT);
         // this->_stepper->moveTo(target);
         this->futureTarget = constrain(this->futureTarget - 1, 0, PADDLE_LIMIT);
-        this->stepIndex = 2;
-    }
+        // this->stepIndex = 2;
+    // }
     
 }
 
@@ -218,12 +219,16 @@ bool Paddle::isRunning()
 
 void Paddle::update()
 {
+    if(!Paddle::attached){
+        return;
+    }
     Paddle::instances[0]->_stepper->moveTo(Paddle::instances[0]->futureTarget);
     Paddle::instances[1]->_stepper->moveTo(Paddle::instances[1]->futureTarget);
 }
 
 void Paddle::attachPaddles()
 {
+    Paddle::attached = true;
     Paddle::instances[0]->futureTarget = Paddle::instances[0]->_stepper->currentPosition();
     Paddle::instances[1]->futureTarget = Paddle::instances[1]->_stepper->currentPosition();
     
@@ -269,6 +274,7 @@ void Paddle::attachPaddles()
 
 void Paddle::detachPaddles()
 {
+    Paddle::attached = false;
     detachInterrupt(digitalPinToInterrupt(Paddle::instances[0]->_pinA));
     detachInterrupt(digitalPinToInterrupt(Paddle::instances[1]->_pinA));
     detachInterrupt(digitalPinToInterrupt(Paddle::instances[0]->_pinB));

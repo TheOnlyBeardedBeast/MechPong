@@ -102,7 +102,7 @@ public:
     /// The currently motor position.
     /// \return the current motor position
     /// in steps. Positive is clockwise from the 0 position.
-    long currentPosition();
+    volatile long currentPosition();
 
     /// Resets the current position of the motor, so that wherever the motor
     /// happens to be right now is considered to be the new 0 position. Useful

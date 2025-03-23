@@ -14,10 +14,13 @@
 
 const uint16_t MAX_SPEED = 1750;
 const uint16_t START_SPEED = 400;
-const uint32_t START_SPEED_PW = 400*400;
+constexpr uint32_t START_SPEED_PW = 400*400;
 const uint16_t END_SPEED = 400;
-const uint16_t BALL_ACCELERATION = 10 * MAX_SPEED;
-const uint16_t PADDLE_ACCELERATION = 8000;
+constexpr uint16_t BALL_ACCELERATION = 10 * MAX_SPEED;
+const uint16_t PADDLE_ACCELERATION = 10000;
+const uint16_t PADDLE_MAX_SPEED = 1200;
+/// @brief returns PI/180
+constexpr float DEG_RAD = M_PI / 180.0f;
 
 const uint16_t GAMEPLAY_AREA_Y = 1100;
 const uint16_t GAMEPLAY_AREA_X = 1180;
@@ -29,12 +32,12 @@ const uint16_t BALL_WIDTH_HALF = 35;
 
 const uint16_t ENCODER_RESOLUTION = 600;
 const uint8_t PADDLE_SENSITIVITY = 8;
-const uint16_t PADDLE_LIMIT = 980;
-const uint16_t PADDLE_CENTER = 490;
+const uint16_t PADDLE_LIMIT = 1000;
+const uint16_t PADDLE_CENTER = 500;
 
-const uint8_t MIN_ANGLE_MUL = 9;
-const uint8_t MIN_ANGLE = 45;
-const uint8_t MAX_ANGLE = 135;
-const uint8_t MAX_ANGLE_MUL = 27;
+const uint8_t MIN_ANGLE_MUL = 6;
+const uint8_t MIN_ANGLE = 30;
+const uint8_t MAX_ANGLE = 150;
+const uint8_t MAX_ANGLE_MUL = 30;
 
 const uint32_t TICKS = 1000000;

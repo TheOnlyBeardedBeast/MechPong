@@ -37,7 +37,7 @@ void PongStepper::move(long relative)
 boolean PongStepper::runSpeed()
 {
     // Dont do anything unless we actually have a step interval
-    if (!_stepInterval)
+    if (!_stepInterval && !this->shouldClear)
     {
         return false;
     }
@@ -95,7 +95,7 @@ long PongStepper::targetPosition()
     return _targetPos;
 }
 
-long PongStepper::currentPosition()
+volatile long PongStepper::currentPosition()
 {
     return _currentPos;
 }

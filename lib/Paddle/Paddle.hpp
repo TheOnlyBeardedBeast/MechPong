@@ -31,6 +31,7 @@ public:
     void setAcceleration(float acceleration);
 
     static Paddle *instances[2];
+    static bool attached;
     static void attachPaddles();
     static void detachPaddles();
     static void isrReadEncoder0();

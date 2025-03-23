@@ -32,7 +32,7 @@ public:
 
     /// @brief Gets the current cartesian position of the ball from corexy/hbot positioning
     /// @return Poit which contains an X and an Y integer
-    Point getPosition();
+    volatile Point getPosition();
 
     long getCenterRelativePosition();
 
@@ -54,16 +54,25 @@ public:
 
     /// @brief Shoots a ball in an angle and sets its position to the limits
     /// @param degrees defines the angle of shooting
-    void shootDeg(uint16_t degrees);
+    void shootDeg(uint16_t degrees, bool isBounce);
 
     /// @brief Shoots a ball in an angle and sets its position to the limits
     /// @param radians defines the angle of shooting
-    void shootAngle(float radians);
+    void shootAngle(float radians, bool isBounce);
 
     /// @brief Calculates the mirrored angle (Example: 30 -> 150, 210 -> 330)
     /// @param angle in degrees
     /// @return returns the mirrored value
     uint16_t inverseAngle(int16_t angle);
+
+    void resetSpeeds();
+
+    void run();
+
+    bool isRunning();
+
+    long getX();
+    long getY();
 
     PongStepper *subscriber(){
         return this->_yStepper;

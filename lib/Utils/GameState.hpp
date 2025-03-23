@@ -15,5 +15,6 @@ enum GameState
     BOUNCE_PROGRESS,
     HIT_PROGRESS,
     CENTER,
-    CENTER_PROGRESS
+    CENTER_PROGRESS,
+    RANGE,
 };

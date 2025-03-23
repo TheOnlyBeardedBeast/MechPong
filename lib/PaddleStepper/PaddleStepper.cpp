@@ -9,6 +9,7 @@ void PaddleStepper::moveTo(long absolute)
 
         if(this->subscriber != NULL)
         {
+            // TODO: handle different sizes
             this->subscriber->moveTo(absolute);
         }
     }
@@ -45,7 +46,7 @@ void PaddleStepper::move(long relative)
 boolean PaddleStepper::runSpeed()
 {
     // Dont do anything unless we actually have a step interval
-    if (!_stepInterval)
+    if (!_stepInterval && !this->shouldClear)
     {
         return false;
     }

@@ -80,10 +80,10 @@ public:
 private:
     void renderPlayerScore(size_t player)
     {
-        Serial2.write(0x80);
-        Serial2.write(0x89);
-        Serial2.write(adresses[player]);
-        Serial2.write(numbers[scores[player]]);
-        Serial2.write(0x8f);
+        // Serial2.write(0x80);
+        // Serial2.write(0x89);
+        // Serial2.write(adresses[player]);
+        // Serial2.write(numbers[scores[player]]);
+        // Serial2.write(0x8f);
     }
 };
