@@ -60,11 +60,11 @@ public:
         scores[0] = 0;
         scores[1] = 0;
 
-        Serial2.write(0x80);
-        Serial2.write(0x89);
-        Serial2.write(0xff);
-        Serial2.write(numbers[0]);
-        Serial2.write(0x8f);
+        // Serial2.write(0x80);
+        // Serial2.write(0x89);
+        // Serial2.write(0xff);
+        // Serial2.write(numbers[0]);
+        // Serial2.write(0x8f);
     }
 
     bool checkForWinner()

@@ -26,12 +26,6 @@ void PaddleStepper::updateDirection()
         } else {
             sio_hw->gpio_clr =(1 << this->_pin[1]);
         }
-
-        // Depracted
-        // if (this->subscriber != NULL)
-        // {
-        //     this->subscriber->externalUpdateDirection(this->_direction);
-        // }
     }
 }
 
@@ -122,15 +116,7 @@ void PaddleStepper::setCurrentPosition(long position)
 void PaddleStepper::clear()
 {
     this->shouldClear = false;
-    // digitalWrite(this->_pin[0], LOW);
-
     sio_hw->gpio_clr = (1 << this->_pin[0]);
-
-    // Depracted
-    // if (this->subscriber != NULL)
-    // {
-    //     this->subscriber->clear();
-    // }
 }
 
 void PaddleStepper::computeNewSpeed()

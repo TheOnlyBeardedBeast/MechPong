@@ -14,7 +14,12 @@ void PongStepper::updateDirection()
     if (this->_futureDirection != this->_direction)
     {
         this->_direction = this->_futureDirection;
-        digitalWrite(this->_pin[1], this->_direction ^ _pinInverted[1]);
+        if(this->_direction ^ _pinInverted[1])
+        {
+            sio_hw->gpio_set = (1 << this->_pin[1]);
+        } else {
+            sio_hw->gpio_clr =(1 << this->_pin[1]);
+        }
     }
 }
 
@@ -23,7 +28,12 @@ void PongStepper::externalUpdateDirection(bool dir)
     this->_futureDirection = dir;
     this->_direction = dir;
 
-    digitalWrite(this->_pin[1], this->_direction ^ _pinInverted[1]);
+    if(this->_direction ^ _pinInverted[1])
+    {
+        sio_hw->gpio_set = (1 << this->_pin[1]);
+    } else {
+        sio_hw->gpio_clr =(1 << this->_pin[1]);
+    }
 }
 
 void PongStepper::move(long relative)
@@ -42,7 +52,7 @@ boolean PongStepper::runSpeed()
         return false;
     }
 
-    unsigned long time = micros();
+    unsigned long time = time_us_32();
     unsigned long delta = time - _lastStepTime;
 
     if(this->_futureDirection != this->_direction && delta >= this->_stepInterval - 10 && delta < this->_stepInterval)
@@ -113,12 +123,7 @@ void PongStepper::setCurrentPosition(long position)
 void PongStepper::clear()
 {
     this->shouldClear = false;
-    digitalWrite(this->_pin[0], LOW);
-
-    if (this->subscriber != NULL)
-    {
-        this->subscriber->clear();
-    }
+    sio_hw->gpio_clr = (1 << this->_pin[0]);
 }
 
 void PongStepper::computeNewSpeed()
@@ -303,7 +308,7 @@ void PongStepper::step(long step)
 
     // _pin[0] is step, _pin[1] is direction
 
-    digitalWrite(this->_pin[0], HIGH);
+    sio_hw->gpio_set = (1 << this->_pin[0]);
 
     this->shouldClear = true;
 }

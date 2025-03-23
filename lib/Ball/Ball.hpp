@@ -74,6 +74,8 @@ public:
     long getX();
     long getY();
 
+    void printInfo();
+
     PongStepper *subscriber(){
         return this->_yStepper;
     }

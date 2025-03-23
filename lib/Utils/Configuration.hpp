@@ -13,27 +13,24 @@
 // 6-----1.5875m/s - 3,175step/s
 
 const uint16_t MAX_SPEED = 1750;
-const uint16_t START_SPEED = 400;
-constexpr uint32_t START_SPEED_PW = 400*400;
-const uint16_t END_SPEED = 400;
-constexpr uint16_t BALL_ACCELERATION = 10 * MAX_SPEED;
+constexpr uint16_t BALL_ACCELERATION = 20000;
 const uint16_t PADDLE_ACCELERATION = 10000;
 const uint16_t PADDLE_MAX_SPEED = 1200;
 /// @brief returns PI/180
 constexpr float DEG_RAD = M_PI / 180.0f;
 
-const uint16_t GAMEPLAY_AREA_Y = 1100;
-const uint16_t GAMEPLAY_AREA_X = 1180;
+const uint8_t MICRO_STEP = 1;
 
-const uint16_t PADDLE_WIDTH = 150; // 7.5 cm
-const uint16_t PADDLE_WIDTH_HALF = 75;
-const uint16_t BALL_WIDTH = 70; // 3.5 cm, will change to 2.5cm
-const uint16_t BALL_WIDTH_HALF = 35;
+constexpr uint16_t GAMEPLAY_AREA_Y = 1100*MICRO_STEP;
+constexpr uint16_t GAMEPLAY_AREA_X = 1300*MICRO_STEP;
 
-const uint16_t ENCODER_RESOLUTION = 600;
-const uint8_t PADDLE_SENSITIVITY = 8;
-const uint16_t PADDLE_LIMIT = 1000;
-const uint16_t PADDLE_CENTER = 500;
+const uint16_t PADDLE_WIDTH = 90;
+const uint16_t PADDLE_WIDTH_HALF = 45;
+const uint16_t BALL_WIDTH = 40;
+const uint16_t BALL_WIDTH_HALF = 20;
+
+constexpr uint16_t PADDLE_LIMIT = 1100*MICRO_STEP;
+constexpr uint16_t PADDLE_CENTER = PADDLE_LIMIT/2;
 
 const uint8_t MIN_ANGLE_MUL = 6;
 const uint8_t MIN_ANGLE = 30;

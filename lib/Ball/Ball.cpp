@@ -61,7 +61,7 @@ volatile Point Ball::getPosition()
 
 long Ball::getCenterRelativePosition()
 {
-    return this->_yStepper->currentPosition() - (1000 >> 1);
+    return this->_yStepper->currentPosition() - (GAMEPLAY_AREA_Y >> 1);
 }
 
 void Ball::calibrate()
@@ -87,7 +87,7 @@ void Ball::runCenter()
 
 void Ball::center()
 {
-    this->setposition(1000 >> 1, 1000 >> 1);
+    this->setposition(GAMEPLAY_AREA_X >> 1, GAMEPLAY_AREA_Y >> 1);
 }
 
 bool Ball::needsToMove()
@@ -109,8 +109,8 @@ void Ball::bounce()
 
 void Ball::shootDeg(uint16_t degrees, bool isBounce)
 {
-    Serial.println("SHOOT");
-    Serial.println(degrees);
+    // Serial.println("SHOOT");
+    // Serial.println(degrees);
     this->lastAngle = degrees;
     this->shootAngle(0, isBounce);
 }
@@ -121,12 +121,12 @@ void Ball::shootAngle(float angleRadians, bool isBounce)
 
     if(this->lastAngle == 90){
         this->_xStepper->setMaxSpeed(mapAngleToSpeedX(this->lastAngle));
-        this->_xStepper->moveTo(ballPos.x == 1000 ? 0 : 1000);
+        this->_xStepper->moveTo(ballPos.x == GAMEPLAY_AREA_X ? 0 : GAMEPLAY_AREA_X);
 
         return;
     }
 
-    if ((ballPos.y == 1000 &&
+    if ((ballPos.y == GAMEPLAY_AREA_Y &&
          (this->lastAngle < 90 || this->lastAngle > 270)) ||
         (ballPos.y == 0 &&
          (this->lastAngle > 90 && this->lastAngle < 270)))
@@ -140,23 +140,23 @@ void Ball::shootAngle(float angleRadians, bool isBounce)
     bool horizontalModifier = dy >= 0;
     bool verticalModifier = dx >= 0;
 
-    double a = horizontalModifier ? 1000 - ballPos.y : ballPos.y;
-    double o = verticalModifier ? 1000 - ballPos.x : ballPos.x;
+    double a = horizontalModifier ? GAMEPLAY_AREA_Y - ballPos.y : ballPos.y;
+    double o = verticalModifier ? GAMEPLAY_AREA_X - ballPos.x : ballPos.x;
 
     double ty = a / dy;
     double tx = o / dx;
 
     double t = min(abs(ty), abs(tx));
 
-    // int newX = constrain(ballPos.x + round(dx * t), 0, 1000);
-    int newY = constrain(ballPos.y + round(dy * t), 0, 1000);
+    // int newX = constrain(ballPos.x + round(dx * t), 0, GAMEPLAY_AREA_X);
+    int newY = constrain(ballPos.y + round(dy * t), 0, GAMEPLAY_AREA_Y);
 
     this->_xStepper->setMaxSpeed(mapAngleToSpeedX(this->lastAngle));
     this->_yStepper->setMaxSpeed(mapAngleToSpeedY(this->lastAngle));
 
    
         if(!isBounce){
-            this->_xStepper->moveTo(ballPos.x == 1000 ? 0 : 1000);
+            this->_xStepper->moveTo(ballPos.x == GAMEPLAY_AREA_X ? 0 : GAMEPLAY_AREA_X);
         }
         this->_yStepper->moveTo(newY);
 }
@@ -190,13 +190,26 @@ bool Ball::isRunning()
 
 long Ball::getX()
 {
-    Serial.println(this->_xStepper->currentPosition());
     return this->_xStepper->currentPosition();
 }
 
 long Ball::getY()
 {
     return this->_yStepper->currentPosition();
+}
+
+void Ball::printInfo()
+{
+    Serial.print("x.targetPosition:");
+    Serial.println(this->_xStepper->targetPosition());
+    Serial.print("x.speed:");
+    Serial.println(this->_xStepper->speed());
+    Serial.print("y.targetPosition:");
+    Serial.println(this->_yStepper->targetPosition());
+    Serial.print("y.speed:");
+    Serial.println(this->_yStepper->speed());
+    Serial.print("isRunning:");
+    Serial.println(this->isRunning());
 }
 
 Ball::~Ball()
