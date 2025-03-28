@@ -22,7 +22,7 @@ constexpr float DEG_RAD = M_PI / 180.0f;
 const uint8_t MICRO_STEP = 1;
 
 constexpr uint16_t GAMEPLAY_AREA_Y = 1100*MICRO_STEP;
-constexpr uint16_t GAMEPLAY_AREA_X = 1300*MICRO_STEP;
+constexpr uint16_t GAMEPLAY_AREA_X = 1440*MICRO_STEP;
 
 const uint16_t PADDLE_WIDTH = 90;
 const uint16_t PADDLE_WIDTH_HALF = 45;
