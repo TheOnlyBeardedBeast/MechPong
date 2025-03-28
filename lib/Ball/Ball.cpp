@@ -119,12 +119,12 @@ void Ball::shootAngle(float angleRadians, bool isBounce)
 {
     Point ballPos = this->getPosition();
 
-    if(this->lastAngle == 90){
-        this->_xStepper->setMaxSpeed(mapAngleToSpeedX(this->lastAngle));
-        this->_xStepper->moveTo(ballPos.x == GAMEPLAY_AREA_X ? 0 : GAMEPLAY_AREA_X);
+    // if(this->lastAngle == 90){
+    //     this->_xStepper->setMaxSpeed(mapAngleToSpeedX(this->lastAngle));
+    //     this->_xStepper->moveTo(ballPos.x == GAMEPLAY_AREA_X ? 0 : GAMEPLAY_AREA_X);
 
-        return;
-    }
+    //     return;
+    // }
 
     if ((ballPos.y == GAMEPLAY_AREA_Y &&
          (this->lastAngle < 90 || this->lastAngle > 270)) ||
@@ -154,11 +154,10 @@ void Ball::shootAngle(float angleRadians, bool isBounce)
     this->_xStepper->setMaxSpeed(mapAngleToSpeedX(this->lastAngle));
     this->_yStepper->setMaxSpeed(mapAngleToSpeedY(this->lastAngle));
 
-   
-        if(!isBounce){
-            this->_xStepper->moveTo(ballPos.x == GAMEPLAY_AREA_X ? 0 : GAMEPLAY_AREA_X);
-        }
-        this->_yStepper->moveTo(newY);
+    if(!isBounce){
+        this->_xStepper->moveTo(verticalModifier ? GAMEPLAY_AREA_X : 0);
+    }
+    this->_yStepper->moveTo(newY);
 }
 
 uint16_t Ball::inverseAngle(int16_t angle)
