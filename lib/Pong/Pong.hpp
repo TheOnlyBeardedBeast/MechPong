@@ -26,6 +26,8 @@ public:
     void centerProgress();
     void standBy();
     void run();
+    void centerStandBy();
+    void centerStandByProgress();
 
 private:
     // Paddle *paddles[2] = {nullptr, nullptr};

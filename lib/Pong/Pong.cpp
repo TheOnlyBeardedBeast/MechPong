@@ -110,9 +110,38 @@ void Pong::run()
         case GameState::STAND_BY:
             this->standBy();
             return;
+        case GameState::CENTER_STANDBY:
+            this->centerStandBy();
+            return;
+        case GameState::CENTER_STANDBY_PROGRESS:
+            this->centerStandByProgress();
+            return;
         default:
             return;
     }
+}
+
+void Pong::centerStandBy()
+{
+    score.resetScore();
+    Paddle::instances[0]->_stepper->moveTo(PADDLE_CENTER);
+    Paddle::instances[1]->_stepper->moveTo(PADDLE_CENTER);
+
+    this->ball->center();
+
+    this->gameState = GameState::CENTER_STANDBY_PROGRESS;
+    return;
+}
+
+void Pong::centerStandByProgress()
+{
+    if (Paddle::isRunning() || this->ball->isRunning())
+    {   
+        return;
+    }
+
+    this->gameState = GameState::STAND_BY;
+    return;
 }
 
 void Pong::initMatch()
@@ -245,7 +274,7 @@ void Pong::runMatch()
             this->shooter = Player::NOONE;
             this->lastWinner = Player::NOONE;
             // Serial.println("GAME_WIN:DONE");
-            this->gameState = GameState::CENTER;
+            this->gameState = GameState::CENTER_STANDBY;
             return;
         }
 
