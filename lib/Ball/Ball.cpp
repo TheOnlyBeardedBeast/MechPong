@@ -197,6 +197,11 @@ long Ball::getY()
     return this->_yStepper->currentPosition();
 }
 
+long Ball::stepsToSop()
+{
+    return this->_xStepper->stepperStepsToStop;
+}
+
 void Ball::printInfo()
 {
     Serial.print("x.targetPosition:");

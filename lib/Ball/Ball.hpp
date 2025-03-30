@@ -73,6 +73,7 @@ public:
 
     long getX();
     long getY();
+    long stepsToSop();
 
     void printInfo();
 

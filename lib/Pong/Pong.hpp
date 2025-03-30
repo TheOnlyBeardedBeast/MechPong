@@ -28,6 +28,8 @@ public:
     void run();
     void centerStandBy();
     void centerStandByProgress();
+    void alignBall();
+    void alignBallProgress();
 
 private:
     // Paddle *paddles[2] = {nullptr, nullptr};

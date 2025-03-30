@@ -28,6 +28,8 @@ const uint16_t PADDLE_WIDTH = 90;
 const uint16_t PADDLE_WIDTH_HALF = 45;
 const uint16_t BALL_WIDTH = 40;
 const uint16_t BALL_WIDTH_HALF = 20;
+const uint16_t BALL_OFFSET = BALL_WIDTH + BALL_WIDTH_HALF;
+const uint16_t BALL_SHOOT_OFFSET = BALL_WIDTH << 1;
 
 constexpr uint16_t PADDLE_LIMIT = 1100*MICRO_STEP;
 constexpr uint16_t PADDLE_CENTER = PADDLE_LIMIT/2;
