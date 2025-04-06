@@ -1,4 +1,5 @@
 #include "PaddleStepper.hpp"
+#include "Configuration.hpp"
 
 void PaddleStepper::moveTo(long absolute)
 {
@@ -10,7 +11,7 @@ void PaddleStepper::moveTo(long absolute)
         if(this->subscriber != NULL)
         {
             // TODO: handle different sizes
-            this->subscriber->moveTo(absolute);
+            this->subscriber->moveTo(absolute+BALL_WIDTH);
         }
     }
 }

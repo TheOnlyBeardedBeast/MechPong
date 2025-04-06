@@ -1,9 +1,6 @@
 #pragma once
 #include <Arduino.h>
-
-constexpr int ANGLE_COUNT = 25;  // Angles: 30, 35, 40, ..., 150
-constexpr int ANGLE_MIN = 30;
-constexpr int ANGLE_STEP = 5;
+#include "Configuration.hpp"
 
 extern float sinTable[ANGLE_COUNT];
 extern float cosTable[ANGLE_COUNT];
@@ -17,7 +14,7 @@ inline float fastSin(int degrees) {
 
     if (isFlipped) degrees -= 180;
 
-    int index = (degrees - ANGLE_MIN) / ANGLE_STEP;
+    int index = (degrees - MIN_ANGLE) / ANGLE_STEP;
     return isFlipped ? -sinTable[index] : sinTable[index];
 }
 
@@ -26,6 +23,6 @@ inline float fastCos(int degrees) {
 
     if (isFlipped) degrees -= 180;
 
-    int index = (degrees - ANGLE_MIN) / ANGLE_STEP;
+    int index = (degrees - MIN_ANGLE) / ANGLE_STEP;
     return isFlipped ? -cosTable[index] : cosTable[index];
 }

@@ -30,6 +30,8 @@ public:
     void centerStandByProgress();
     void alignBall();
     void alignBallProgress();
+    void alignBallEnd();
+    void alignBallEndProgress();
 
 private:
     // Paddle *paddles[2] = {nullptr, nullptr};

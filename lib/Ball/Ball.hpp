@@ -83,8 +83,8 @@ public:
 
     ~Ball();
 
-private:
     PongStepper *_xStepper = NULL;
+private:
     PongStepper *_yStepper = NULL;
 
     int dx;

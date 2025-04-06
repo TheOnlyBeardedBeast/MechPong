@@ -275,6 +275,8 @@ void Paddle::attachPaddles()
 void Paddle::detachPaddles()
 {
     Paddle::attached = false;
+    Paddle::instances[0]->_stepper->stop();
+    Paddle::instances[1]->_stepper->stop();
     detachInterrupt(digitalPinToInterrupt(Paddle::instances[0]->_pinA));
     detachInterrupt(digitalPinToInterrupt(Paddle::instances[1]->_pinA));
     detachInterrupt(digitalPinToInterrupt(Paddle::instances[0]->_pinB));

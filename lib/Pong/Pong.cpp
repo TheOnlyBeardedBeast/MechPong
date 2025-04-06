@@ -5,16 +5,20 @@ Pong::Pong()
     this->ball = new Ball();
     this->ball->init(18,19,21,20);
     this->ball->instance = this->ball;
+    this->ball->_xStepper->setCurrentPosition(-BALL_WIDTH_HALF);
 
     Paddle *paddle0 = new Paddle();
     paddle0->initializeStepper(4,5);
-    paddle0->initializeEncoder(0,1);
+    paddle0->initializeEncoder(1,0);
+    paddle0->_stepper->setCurrentPosition(-BALL_WIDTH);
 
     PongPlayer *player0 = new PongPlayer(paddle0, new Switch(2));
 
     Paddle *paddle1 = new Paddle();
     paddle1->initializeStepper(10,11);
     paddle1->initializeEncoder(14,15);
+    paddle1->_stepper->setCurrentPosition(-BALL_WIDTH);
+    
 
     PongPlayer *player1 = new PongPlayer(paddle1, new Switch(16));
 
@@ -123,6 +127,12 @@ void Pong::run()
         case GameState::ALIGN_BALL_PROGRESS:
             this->alignBallProgress();
             return;
+        case GameState::ALIGN_BALL_END:
+            this->alignBallEnd();
+            return;
+        case GameState::ALIGN_BALL_END_PROGRESS:
+            this->alignBallEndProgress();
+            return;
         default:
             return;
     }
@@ -166,6 +176,24 @@ void Pong::alignBallProgress()
     }
 
     this->gameState = GameState::MATCH_INIT;
+    return;
+}
+
+void Pong::alignBallEnd()
+{
+    Ball::instance->setposition(this->shooter==0 ? GAMEPLAY_AREA_X - BALL_OFFSET : BALL_OFFSET, Ball::instance->getY());
+    this->gameState = GameState::ALIGN_BALL_END_PROGRESS;
+    return;
+}
+
+void Pong::alignBallEndProgress()
+{
+    while(Ball::instance->isRunning())
+    {
+        return;
+    }
+
+    this->gameState = GameState::CENTER_STANDBY;
     return;
 }
 
@@ -304,11 +332,12 @@ void Pong::runMatch()
             this->shooter = Player::NOONE;
             this->lastWinner = Player::NOONE;
             // Serial.println("GAME_WIN:DONE");
-            this->gameState = GameState::CENTER_STANDBY;
+            this->gameState = GameState::ALIGN_BALL_END;
             return;
         }
 
         // Serial.println("POINT_HIT:DONE");
+        
         delay(1000);
         this->shooter = nextShooter;
         this->gameState = GameState::ALIGN_BALL;

@@ -6,7 +6,7 @@ float cosTable[ANGLE_COUNT];
 
 void initTrigTables() {
     for (int i = 0; i < ANGLE_COUNT; ++i) {
-        float rad = (ANGLE_MIN + i * ANGLE_STEP) * DEG_RAD;
+        float rad = (MIN_ANGLE + i * ANGLE_STEP) * DEG_RAD;
         sinTable[i] = sin(rad);
         if(i==12){
             cosTable[i] = 0;
