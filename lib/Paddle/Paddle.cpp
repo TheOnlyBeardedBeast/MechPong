@@ -275,12 +275,25 @@ void Paddle::attachPaddles()
 void Paddle::detachPaddles()
 {
     Paddle::attached = false;
-    Paddle::instances[0]->_stepper->stop();
-    Paddle::instances[1]->_stepper->stop();
     detachInterrupt(digitalPinToInterrupt(Paddle::instances[0]->_pinA));
     detachInterrupt(digitalPinToInterrupt(Paddle::instances[1]->_pinA));
     detachInterrupt(digitalPinToInterrupt(Paddle::instances[0]->_pinB));
     detachInterrupt(digitalPinToInterrupt(Paddle::instances[1]->_pinB));
+}
+
+void Paddle::stopAll()
+{
+    Paddle::instances[0]->_stepper->setAcceleration(PADDLE_ACCELERATION << 2);
+    Paddle::instances[1]->_stepper->setAcceleration(PADDLE_ACCELERATION << 2);
+
+    Paddle::instances[0]->_stepper->stop();
+    Paddle::instances[1]->_stepper->stop();
+}
+
+void Paddle::resetAcceleration()
+{
+    Paddle::instances[0]->_stepper->setAcceleration(PADDLE_ACCELERATION);
+    Paddle::instances[1]->_stepper->setAcceleration(PADDLE_ACCELERATION);
 }
 
 byte Paddle::canShoot(long ballPos)

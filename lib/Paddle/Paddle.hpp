@@ -44,6 +44,8 @@ public:
     static void run();
     static bool isRunning();
     static void update();
+    static void stopAll();
+    static void resetAcceleration();
 
     byte stepIndex = 4;
     long futureTarget = 0;
