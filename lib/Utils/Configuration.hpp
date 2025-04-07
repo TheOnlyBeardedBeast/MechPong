@@ -24,12 +24,13 @@ constexpr uint16_t GAMEPLAY_AREA_Y = 1100 * MICRO_STEP;
 constexpr uint16_t GAMEPLAY_AREA_X = 1380 * MICRO_STEP;
 
 constexpr uint16_t BALL_WIDTH = 40 * MICRO_STEP;
+constexpr uint16_t BALL_WIDTH_WITH_OFFSET = (BALL_WIDTH << 1) * MICRO_STEP;
 
 constexpr uint16_t BALL_WIDTH_HALF = BALL_WIDTH >> 1;
 constexpr uint16_t BALL_OFFSET = BALL_WIDTH + BALL_WIDTH_HALF;
 constexpr uint16_t BALL_SHOOT_OFFSET = BALL_OFFSET;
 
-constexpr uint16_t PADDLE_WIDTH = (120 * MICRO_STEP) + BALL_OFFSET;
+constexpr uint16_t PADDLE_WIDTH = (120 * MICRO_STEP) + BALL_WIDTH * 2;
 constexpr uint16_t PADDLE_WIDTH_HALF = PADDLE_WIDTH >> 1;
 
 constexpr uint16_t PADDLE_LIMIT = 1020 * MICRO_STEP;
