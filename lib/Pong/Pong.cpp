@@ -195,6 +195,7 @@ void Pong::alignBallEndProgress()
         return;
     }
 
+    this->shooter = Player::NOONE;
     this->gameState = GameState::CENTER_STANDBY;
     return;
 }
@@ -301,7 +302,7 @@ void Pong::runMatch()
 
         Player nextShooter = this->shooter == Player::Player1 ? Player::Player2 : Player::Player1;
 
-        byte shot = this->players[(int)nextShooter]->paddle->canShoot(ball->getCenterRelativePosition());
+        byte shot = this->players[(int)nextShooter]->paddle->canShoot(ball->getCenterRelativePosition() + ball->getPossibleStopPoint());
 
         if (shot != 0)
         {
@@ -324,7 +325,7 @@ void Pong::runMatch()
         Paddle::instances[0]->unsubScribe();
         Paddle::instances[1]->unsubScribe();
 
-        Paddle::stopAll();
+        Paddle::quickStop();
 
         this->ball->resetSpeeds();
 
@@ -334,7 +335,7 @@ void Pong::runMatch()
 
             score.resetScore();
 
-            this->shooter = Player::NOONE;
+            this->shooter = nextShooter;
             this->lastWinner = Player::NOONE;
             // Serial.println("GAME_WIN:DONE");
             this->gameState = GameState::ALIGN_BALL_END;
@@ -354,7 +355,11 @@ void Pong::runMatch()
     long y = this->ball->getY();
 
     // BOUNCE
-    if ((y >= GAMEPLAY_AREA_Y || y <= 0) && x > (BALL_WIDTH * 3) && x < GAMEPLAY_AREA_X - (BALL_WIDTH * 3))
+    if (
+        (y >= GAMEPLAY_AREA_Y || y <= 0) 
+        && (x > (BALL_WIDTH * 3) || this->shooter == Player::Player2) 
+        && (x < GAMEPLAY_AREA_X - (BALL_WIDTH * 3) || this->shooter == Player::Player1)
+    )
     {
         ball->bounce();
         this->gameState = GameState::BOUNCE_PROGRESS;

@@ -182,6 +182,8 @@ public:
     /// anticlockwise from the current position.
     void    move(long relative);
 
+    long stepperStepsToStop = 0;
+
 protected:
     /// Forces the library to compute a new instantaneous speed and set that as
     /// the current speed. It is called by

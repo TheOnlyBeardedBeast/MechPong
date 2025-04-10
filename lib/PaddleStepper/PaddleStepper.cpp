@@ -125,6 +125,7 @@ void PaddleStepper::computeNewSpeed()
     long distanceTo = distanceToGo(); // +ve is clockwise from curent location
 
     long stepsToStop = (long)((_speed * _speed) / (2.0 * _acceleration)); // Equation 16
+    this->stepperStepsToStop = stepsToStop;
 
     if (distanceTo == 0 && stepsToStop <= 1)
     {

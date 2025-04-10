@@ -1,7 +1,10 @@
 #include <Configuration.hpp>
 #include <TrigTables.hpp>
+#include <GetRelativeAngle.hpp>
+#include <sign.hpp>
 
 #include "Ball.hpp"
+
 
 Ball *Ball::instance;
 
@@ -214,6 +217,13 @@ void Ball::printInfo()
     Serial.println(this->_yStepper->speed());
     Serial.print("isRunning:");
     Serial.println(this->isRunning());
+}
+
+long Ball::getPossibleStopPoint()
+{
+    uint16_t relativeNagle = getRelativeAngle(this->lastAngle); 
+
+    return this->stepsToSop() * fastTan(relativeNagle) * sign(this->_yStepper->speed());
 }
 
 Ball::~Ball()

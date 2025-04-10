@@ -77,6 +77,8 @@ public:
 
     void printInfo();
 
+    long getPossibleStopPoint();
+
     PongStepper *subscriber(){
         return this->_yStepper;
     }

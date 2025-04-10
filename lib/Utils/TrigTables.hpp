@@ -4,6 +4,7 @@
 
 extern float sinTable[ANGLE_COUNT];
 extern float cosTable[ANGLE_COUNT];
+extern float tanTable[ANGLE_COUNT]; 
 
 // Precompute sine and cosine values for 30° to 150°
 void initTrigTables();
@@ -25,4 +26,13 @@ inline float fastCos(int degrees) {
 
     int index = (degrees - MIN_ANGLE) / ANGLE_STEP;
     return isFlipped ? -cosTable[index] : cosTable[index];
+}
+
+inline float fastTan(int degrees) {
+    bool isFlipped = (degrees >= 180);
+
+    if (isFlipped) degrees -= 180;
+    
+    int index = (degrees - MIN_ANGLE) / ANGLE_STEP;
+    return isFlipped ? -tanTable[index] : tanTable[index];
 }

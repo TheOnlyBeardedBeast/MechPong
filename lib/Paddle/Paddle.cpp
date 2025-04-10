@@ -1,5 +1,6 @@
 #include "Paddle.hpp"
 #include <Configuration.hpp>
+#include "sign.hpp"
 
 Paddle *Paddle::instances[2];
 bool Paddle::calibrated = false;
@@ -104,6 +105,11 @@ void Paddle::setMaxSpeed(float speed)
 void Paddle::setAcceleration(float acceleration)
 {
     this->_stepper->setAcceleration(acceleration);
+}
+
+long Paddle::stepsToQuickStop()
+{
+    return (this->_stepper->stepperStepsToStop >> 2) * sign(this->_stepper->speed());
 }
 
 void Paddle::isrReadEncoder0()
@@ -281,7 +287,7 @@ void Paddle::detachPaddles()
     detachInterrupt(digitalPinToInterrupt(Paddle::instances[1]->_pinB));
 }
 
-void Paddle::stopAll()
+void Paddle::quickStop()
 {
     Paddle::instances[0]->_stepper->setAcceleration(PADDLE_ACCELERATION << 2);
     Paddle::instances[1]->_stepper->setAcceleration(PADDLE_ACCELERATION << 2);
@@ -298,7 +304,7 @@ void Paddle::resetAcceleration()
 
 byte Paddle::canShoot(long ballPos)
 {
-    long paddlePos = this->getCenterRelativePosition();
+    long paddlePos = this->getCenterRelativePosition() + this->stepsToQuickStop();
 
     long paddleLeftEdge = paddlePos - PADDLE_WIDTH_HALF;
     long paddleRightEdge = paddlePos + PADDLE_WIDTH_HALF;

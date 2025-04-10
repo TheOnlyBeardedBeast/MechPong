@@ -29,6 +29,7 @@ public:
 
     void setMaxSpeed(float speed);
     void setAcceleration(float acceleration);
+    long stepsToQuickStop();
 
     static Paddle *instances[2];
     static bool attached;
@@ -44,7 +45,7 @@ public:
     static void run();
     static bool isRunning();
     static void update();
-    static void stopAll();
+    static void quickStop();
     static void resetAcceleration();
 
     byte stepIndex = 4;
