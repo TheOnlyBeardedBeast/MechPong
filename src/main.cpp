@@ -36,7 +36,10 @@ void loop() {
 }
 
 void loop1() {
-  Paddle::update();
-  Paddle::run();
-  game->ball->run();
+  if(game->gameState != GameState::CALIBRATION)
+  {
+    Paddle::update();
+    Paddle::run();
+    game->ball->run();
+  }
 }

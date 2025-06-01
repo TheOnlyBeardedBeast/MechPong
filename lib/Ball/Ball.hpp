@@ -3,6 +3,7 @@
 #include <Configuration.hpp>
 #include <PongStepper.hpp>
 #include <Point.hpp>
+#include <Switch.hpp>
 
 class Ball
 {
@@ -86,6 +87,8 @@ public:
     ~Ball();
 
     PongStepper *_xStepper = NULL;
+    Switch *limitSwitchX = NULL;
+    Switch *limitSwitchY = NULL;
 private:
     PongStepper *_yStepper = NULL;
 

@@ -6,11 +6,14 @@ Pong::Pong()
     this->ball->init(18,19,21,20);
     this->ball->instance = this->ball;
     this->ball->_xStepper->setCurrentPosition(-BALL_WIDTH_HALF);
+    this->ball->limitSwitchX = new Switch(17);
+    this->ball->limitSwitchY = new Switch(22);
 
     Paddle *paddle0 = new Paddle();
     paddle0->initializeStepper(4,5);
     paddle0->initializeEncoder(1,0);
     paddle0->_stepper->setCurrentPosition(-BALL_WIDTH);
+    paddle0->limitSwitch = new Switch(3);
 
     PongPlayer *player0 = new PongPlayer(paddle0, new Switch(2));
 
@@ -18,6 +21,7 @@ Pong::Pong()
     paddle1->initializeStepper(10,11);
     paddle1->initializeEncoder(14,15);
     paddle1->_stepper->setCurrentPosition(-BALL_WIDTH);
+    paddle1->limitSwitch = new Switch(12);
     
 
     PongPlayer *player1 = new PongPlayer(paddle1, new Switch(16));
@@ -32,7 +36,21 @@ Pong::Pong()
 void Pong::calibrate()
 {
     Paddle::calibrate();
+
+    Paddle::centerAll();
+
+    if(Paddle::isRunning())
+    {
+        Paddle::run();
+    }
+
     this->ball->calibrate();
+    this->ball->center();
+
+    if(this->ball->isRunning())
+    {
+        this->ball->run();
+    }
 
     this->gameState = GameState::CENTER;
 }

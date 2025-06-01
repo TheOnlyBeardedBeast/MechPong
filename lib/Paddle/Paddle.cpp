@@ -80,6 +80,7 @@ void Paddle::decrement()
 Paddle::~Paddle()
 {
     delete this->_stepper;
+    delete this->limitSwitch;
 }
 
 long Paddle::getPosition()
@@ -163,43 +164,39 @@ void Paddle::isrReadEncoder11()
 
 void Paddle::calibrate()
 {
+    Paddle::calibrated = false;
+
     Paddle *p1 = Paddle::instances[0];
     Paddle *p2 = Paddle::instances[1];
 
-    p1->_stepper->setSpeed(-400);
-    p2->_stepper->setSpeed(-400);
+    p1->_stepper->setSpeed(-200);
+    p2->_stepper->setSpeed(-200);
 
     delayMicroseconds(20);
 
-    // while (!p1->_stepper->calibrated || !p2->_stepper->calibrated)
-    // {
-    //     // TODO
-    //     if (!digitalRead(3))
-    //     {
-    //         p1->_stepper->calibrated = true;
-    //     }
+    while (!Paddle::calibrated)
+    {
 
-    //     // TODO
-    //     if (!digitalRead(4))
-    //     {
-    //         p2->_stepper->calibrated = true;
-    //     }
+        if (!p1->limitSwitch->isClicked())
+        {
+            p1->_stepper->runSpeed();
+        }
 
-    //     if (!p1->_stepper->calibrated)
-    //     {
-    //         p1->_stepper->runSpeed();
-    //     }
+        if (!p2->limitSwitch->isClicked())
+        {
+            p2->_stepper->runSpeed();
+        }
 
-    //     if (!p2->_stepper->calibrated)
-    //     {
-    //         p2->_stepper->runSpeed();
-    //     }
-    // }
+        if(p1->limitSwitch->isClicked() && p2->limitSwitch->isClicked())
+        {
+            Paddle::calibrated = true;
+        }
 
-    p1->_stepper->setCurrentPosition(-10);
-    p2->_stepper->setCurrentPosition(-10);
+        delay(1);
+    }
 
-    Paddle::calibrated = true;
+    p1->_stepper->setCurrentPosition(-BALL_WIDTH - BALL_WIDTH_HALF);
+    p2->_stepper->setCurrentPosition(-BALL_WIDTH - BALL_WIDTH_HALF);
 }
 
 void Paddle::centerAll()

@@ -3,6 +3,7 @@
 #include <StepDirection.hpp>
 #include <PaddleStepper.hpp>
 #include <PaddleSubscriber.hpp>
+#include <Switch.hpp>
 
 using CallbackFunction = void (*)(int);
 
@@ -12,6 +13,7 @@ public:
     // variables
     byte id;
     PaddleStepper *_stepper = NULL;
+    Switch *limitSwitch = NULL;
 
     // constructors
     Paddle();

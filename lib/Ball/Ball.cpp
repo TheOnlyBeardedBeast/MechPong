@@ -69,18 +69,33 @@ long Ball::getCenterRelativePosition()
 
 void Ball::calibrate()
 {
-    // this->initCalibration();
 
-    // BoolCallback leftLimitHit = []()
-    // { return digitalRead(LS1) == HIGH ? true : false; };
+    bool calibrated = false;
 
-    // this->_steppers->moveWhile(HIGH, HIGH, CALIBRATION_SPEED, leftLimitHit);
-    // delay(200);
-    // this->setCurrentPosition(GAMEPLAY_AREA_X + 10, GAMEPLAY_AREA_Y + 15);
-    // this->limits.x = GAMEPLAY_AREA_X;
-    // this->limits.y = GAMEPLAY_AREA_Y; // 1step = 0.025cm // somehow 2280 works better maybe belt tension issue
-    // delay(200);
-    // return;
+    while(!calibrated)
+    {
+        this->_xStepper->setSpeed(-200);
+        this->_yStepper->setSpeed(-200);
+
+        if(!this->limitSwitchX->isClicked())
+        {
+            this->_xStepper->runSpeed();
+        }
+
+        if(!this->limitSwitchY->isClicked())
+        {
+            this->_yStepper->runSpeed();
+        }
+
+        if(this->limitSwitchX->isClicked() && this->limitSwitchY->isClicked()) {
+            calibrated = true;
+        }
+
+        delay(1);
+    }
+
+    this->_xStepper->setCurrentPosition(-BALL_WIDTH_HALF);
+    this->_yStepper->setCurrentPosition(-BALL_WIDTH_HALF);
 }
 
 void Ball::runCenter()
