@@ -33,6 +33,7 @@ void setup1()
 
 void loop() {
   game->run();
+  sleep_us(1);
 }
 
 void loop1() {
@@ -42,4 +43,5 @@ void loop1() {
     Paddle::run();
     game->ball->run();
   }
+  sleep_us(1);
 }

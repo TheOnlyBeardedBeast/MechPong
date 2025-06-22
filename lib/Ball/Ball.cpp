@@ -5,7 +5,6 @@
 
 #include "Ball.hpp"
 
-
 Ball *Ball::instance;
 
 int mapAngleToSpeedX(int angle)
@@ -21,12 +20,12 @@ int mapAngleToSpeedY(int angle)
 void Ball::init(size_t stepX, size_t dirX, size_t stepY, size_t dirY)
 {
     pinMode(stepX, OUTPUT);
-    pinMode(dirX,OUTPUT);
+    pinMode(dirX, OUTPUT);
     pinMode(stepY, OUTPUT);
-    pinMode(dirY,OUTPUT);
+    pinMode(dirY, OUTPUT);
 
-    this->_xStepper = new PongStepper(stepX,dirX);
-    this->_yStepper = new PongStepper(stepY,dirY);
+    this->_xStepper = new PongStepper(stepX, dirX);
+    this->_yStepper = new PongStepper(stepY, dirY);
 
     this->_xStepper->setMaxSpeed(1600);
     this->_yStepper->setMaxSpeed(1600);
@@ -69,29 +68,16 @@ long Ball::getCenterRelativePosition()
 
 void Ball::calibrate()
 {
-
-    bool calibrated = false;
-
-    while(!calibrated)
+    this->_yStepper->setSpeed(-CALIBRATION_SPEED);
+    while (!this->limitSwitchY->isClicked())
     {
-        this->_xStepper->setSpeed(-200);
-        this->_yStepper->setSpeed(-200);
+        this->_yStepper->runSpeed();
+    }
 
-        if(!this->limitSwitchX->isClicked())
-        {
-            this->_xStepper->runSpeed();
-        }
-
-        if(!this->limitSwitchY->isClicked())
-        {
-            this->_yStepper->runSpeed();
-        }
-
-        if(this->limitSwitchX->isClicked() && this->limitSwitchY->isClicked()) {
-            calibrated = true;
-        }
-
-        delay(1);
+    this->_xStepper->setSpeed(-CALIBRATION_SPEED);
+    while (!this->limitSwitchX->isClicked())
+    {
+        this->_xStepper->runSpeed();
     }
 
     this->_xStepper->setCurrentPosition(-BALL_WIDTH_HALF);
@@ -149,7 +135,7 @@ void Ball::shootAngle(float angleRadians, bool isBounce)
         (ballPos.y == 0 &&
          (this->lastAngle > 90 && this->lastAngle < 270)))
     {
-        return this->shootDeg(this->inverseAngle(this->lastAngle),isBounce);
+        return this->shootDeg(this->inverseAngle(this->lastAngle), isBounce);
     }
 
     double dy = fastCos(this->lastAngle);
@@ -172,7 +158,8 @@ void Ball::shootAngle(float angleRadians, bool isBounce)
     this->_xStepper->setMaxSpeed(mapAngleToSpeedX(this->lastAngle));
     this->_yStepper->setMaxSpeed(mapAngleToSpeedY(this->lastAngle));
 
-    if(!isBounce){
+    if (!isBounce)
+    {
         this->_xStepper->moveTo(verticalModifier ? GAMEPLAY_AREA_X : 0);
     }
     this->_yStepper->moveTo(newY);
@@ -197,7 +184,9 @@ void Ball::resetSpeeds()
 void Ball::run()
 {
     this->_xStepper->run();
+    sleep_us(1);
     this->_yStepper->run();
+    sleep_us(1);
 }
 
 bool Ball::isRunning()
@@ -236,7 +225,7 @@ void Ball::printInfo()
 
 long Ball::getPossibleStopPoint()
 {
-    uint16_t relativeNagle = getRelativeAngle(this->lastAngle); 
+    uint16_t relativeNagle = getRelativeAngle(this->lastAngle);
 
     return this->stepsToSop() * fastTan(relativeNagle) * sign(this->_yStepper->speed());
 }

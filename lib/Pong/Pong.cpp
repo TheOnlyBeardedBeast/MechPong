@@ -39,9 +39,10 @@ void Pong::calibrate()
 
     Paddle::centerAll();
 
-    if(Paddle::isRunning())
+    while(Paddle::isRunning())
     {
         Paddle::run();
+        sleep_us(1);
     }
 
     this->ball->calibrate();
@@ -50,8 +51,10 @@ void Pong::calibrate()
     if(this->ball->isRunning())
     {
         this->ball->run();
+        sleep_us(1);
     }
 
+    this->calibrated = true;
     this->gameState = GameState::CENTER;
 }
 
@@ -85,7 +88,12 @@ void Pong::standBy()
 {
     if(players[0]->shootButtonR->isClicked() || players[1]->shootButtonR->isClicked())
     {
-        this->gameState = GameState::CENTER;
+        if(this->calibrated){
+            this->gameState = GameState::CENTER;
+        }
+        else {
+            this->gameState = GameState::CALIBRATION;
+        } 
         digitalWrite(LED_BUILTIN,LOW);
         delay(1000);
         digitalWrite(LED_BUILTIN,HIGH);
@@ -191,6 +199,7 @@ void Pong::alignBallProgress()
 {
     while(Ball::instance->isRunning())
     {
+        sleep_us(1);
         return;
     }
 
@@ -210,6 +219,7 @@ void Pong::alignBallEndProgress()
 {
     while(Ball::instance->isRunning())
     {
+        sleep_us(1);
         return;
     }
 

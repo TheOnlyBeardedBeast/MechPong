@@ -11,6 +11,7 @@ class Pong
 {
 public:
     GameState gameState = GameState::STAND_BY;
+    bool calibrated = false;
     Ball *ball = NULL;
     Pong();
     void calibrate();

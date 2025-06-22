@@ -1,3 +1,5 @@
+#pragma once
+
 class Switch {
     private:
         const int pin;

@@ -58,7 +58,7 @@ void Paddle::increment()
     // if(this->stepIndex==4){
     //     // long target = constrain(this->_stepper->targetPosition() + 1, 0, PADDLE_LIMIT);
     //     // this->_stepper->moveTo(target);
-        this->futureTarget = constrain(this->futureTarget + 1, 0, PADDLE_LIMIT);
+        this->futureTarget = constrain(this->futureTarget + MICRO_STEP, 0, PADDLE_LIMIT);
     //     this->stepIndex = 2;
     // }
 }
@@ -71,7 +71,7 @@ void Paddle::decrement()
     // {
         // long target = constrain(this->_stepper->targetPosition() - 1, 0, PADDLE_LIMIT);
         // this->_stepper->moveTo(target);
-        this->futureTarget = constrain(this->futureTarget - 1, 0, PADDLE_LIMIT);
+        this->futureTarget = constrain(this->futureTarget - MICRO_STEP, 0, PADDLE_LIMIT);
         // this->stepIndex = 2;
     // }
     
@@ -169,8 +169,8 @@ void Paddle::calibrate()
     Paddle *p1 = Paddle::instances[0];
     Paddle *p2 = Paddle::instances[1];
 
-    p1->_stepper->setSpeed(-200);
-    p2->_stepper->setSpeed(-200);
+    p1->_stepper->setSpeed(-CALIBRATION_SPEED);
+    p2->_stepper->setSpeed(-CALIBRATION_SPEED);
 
     delayMicroseconds(20);
 
@@ -212,7 +212,9 @@ void Paddle::centerAll()
 void Paddle::run()
 {
     Paddle::instances[0]->_stepper->run();
+    sleep_us(1);
     Paddle::instances[1]->_stepper->run();
+    sleep_us(1);
 }
 
 bool Paddle::isRunning()

@@ -11,12 +11,13 @@
 // 4-----1.0389m/s - 2,078step/s
 // 5-----1.2192m/s - 2,440step/s
 // 6-----1.5875m/s - 3,175step/s
-const uint8_t MICRO_STEP = 1;
+const uint8_t MICRO_STEP = 2;
 
 constexpr uint16_t MAX_SPEED = 1750 * MICRO_STEP;
 constexpr uint16_t BALL_ACCELERATION = 20000 * MICRO_STEP;
 constexpr uint16_t PADDLE_ACCELERATION = 10000 * MICRO_STEP;
 constexpr uint16_t PADDLE_MAX_SPEED = 1200 * MICRO_STEP;
+constexpr uint16_t CALIBRATION_SPEED = 200 * MICRO_STEP;
 /// @brief returns PI/180
 constexpr float DEG_RAD = M_PI / 180.0f;
 
