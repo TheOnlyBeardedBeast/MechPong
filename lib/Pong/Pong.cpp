@@ -36,6 +36,7 @@ Pong::Pong()
 void Pong::calibrate()
 {
     Paddle::calibrate();
+    delay(1000);
 
     Paddle::centerAll();
 
@@ -45,7 +46,11 @@ void Pong::calibrate()
         sleep_us(1);
     }
 
+    delay(1000);
+
     this->ball->calibrate();
+    delay(1000);
+
     this->ball->center();
 
     if(this->ball->isRunning())
@@ -53,6 +58,8 @@ void Pong::calibrate()
         this->ball->run();
         sleep_us(1);
     }
+
+    delay(1000);
 
     this->calibrated = true;
     this->gameState = GameState::CENTER;

@@ -17,7 +17,7 @@ constexpr uint16_t MAX_SPEED = 2000 * MICRO_STEP;
 constexpr uint16_t BALL_ACCELERATION = 25000 * MICRO_STEP;
 constexpr uint16_t PADDLE_ACCELERATION = 20000 * MICRO_STEP;
 constexpr uint16_t PADDLE_MAX_SPEED = 1400 * MICRO_STEP;
-constexpr uint16_t CALIBRATION_SPEED = 200 * MICRO_STEP;
+constexpr uint16_t CALIBRATION_SPEED = 300 * MICRO_STEP;
 /// @brief returns PI/180
 constexpr float DEG_RAD = M_PI / 180.0f;
 
