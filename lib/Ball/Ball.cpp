@@ -223,11 +223,16 @@ void Ball::printInfo()
     Serial.println(this->isRunning());
 }
 
-long Ball::getPossibleStopPoint()
+long Ball::getPossibleHitOffset()
 {
     uint16_t relativeNagle = getRelativeAngle(this->lastAngle);
 
     return this->stepsToSop() * fastTan(relativeNagle) * sign(this->_yStepper->speed());
+}
+
+long Ball::getCenterRelativeTargetPosition()
+{
+    return this->_yStepper->targetPosition() - (GAMEPLAY_AREA_Y >> 1);
 }
 
 Ball::~Ball()

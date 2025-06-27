@@ -13,10 +13,10 @@
 // 6-----1.5875m/s - 3,175step/s
 const uint8_t MICRO_STEP = 2;
 
-constexpr uint16_t MAX_SPEED = 1750 * MICRO_STEP;
-constexpr uint16_t BALL_ACCELERATION = 20000 * MICRO_STEP;
-constexpr uint16_t PADDLE_ACCELERATION = 10000 * MICRO_STEP;
-constexpr uint16_t PADDLE_MAX_SPEED = 1200 * MICRO_STEP;
+constexpr uint16_t MAX_SPEED = 2000 * MICRO_STEP;
+constexpr uint16_t BALL_ACCELERATION = 25000 * MICRO_STEP;
+constexpr uint16_t PADDLE_ACCELERATION = 20000 * MICRO_STEP;
+constexpr uint16_t PADDLE_MAX_SPEED = 1400 * MICRO_STEP;
 constexpr uint16_t CALIBRATION_SPEED = 200 * MICRO_STEP;
 /// @brief returns PI/180
 constexpr float DEG_RAD = M_PI / 180.0f;
@@ -25,13 +25,13 @@ constexpr uint16_t GAMEPLAY_AREA_Y = 1100 * MICRO_STEP;
 constexpr uint16_t GAMEPLAY_AREA_X = 1380 * MICRO_STEP;
 
 constexpr uint16_t BALL_WIDTH = 40 * MICRO_STEP;
-constexpr uint16_t BALL_WIDTH_WITH_OFFSET = (BALL_WIDTH << 1) * MICRO_STEP;
+constexpr uint16_t BALL_WIDTH_WITH_OFFSET = (BALL_WIDTH << 1);
 
 constexpr uint16_t BALL_WIDTH_HALF = BALL_WIDTH >> 1;
 constexpr uint16_t BALL_OFFSET = BALL_WIDTH + BALL_WIDTH_HALF;
 constexpr uint16_t BALL_SHOOT_OFFSET = BALL_OFFSET;
 
-constexpr uint16_t PADDLE_WIDTH = (120 * MICRO_STEP) + BALL_WIDTH * 2;
+constexpr uint16_t PADDLE_WIDTH = (120 * MICRO_STEP) + BALL_WIDTH;
 constexpr uint16_t PADDLE_WIDTH_HALF = PADDLE_WIDTH >> 1;
 
 constexpr uint16_t PADDLE_LIMIT = 1020 * MICRO_STEP;

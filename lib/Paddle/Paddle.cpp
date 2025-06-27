@@ -21,10 +21,10 @@ void Paddle::initializeEncoder(int A, int B)
 
 void Paddle::initializeStepper(int step, int dir)
 {
-    pinMode(step,OUTPUT);
-    pinMode(dir,OUTPUT);
+    pinMode(step, OUTPUT);
+    pinMode(dir, OUTPUT);
 
-    this->_stepper = new PaddleStepper(step,dir);
+    this->_stepper = new PaddleStepper(step, dir);
     this->_stepper->setMaxSpeed(PADDLE_MAX_SPEED);
     this->_stepper->setAcceleration(PADDLE_ACCELERATION);
 }
@@ -58,7 +58,7 @@ void Paddle::increment()
     // if(this->stepIndex==4){
     //     // long target = constrain(this->_stepper->targetPosition() + 1, 0, PADDLE_LIMIT);
     //     // this->_stepper->moveTo(target);
-        this->futureTarget = constrain(this->futureTarget + MICRO_STEP, 0, PADDLE_LIMIT);
+    this->futureTarget = constrain(this->futureTarget + MICRO_STEP, 0, PADDLE_LIMIT);
     //     this->stepIndex = 2;
     // }
 }
@@ -69,12 +69,11 @@ void Paddle::decrement()
 
     // if(this->stepIndex == 0)
     // {
-        // long target = constrain(this->_stepper->targetPosition() - 1, 0, PADDLE_LIMIT);
-        // this->_stepper->moveTo(target);
-        this->futureTarget = constrain(this->futureTarget - MICRO_STEP, 0, PADDLE_LIMIT);
-        // this->stepIndex = 2;
+    // long target = constrain(this->_stepper->targetPosition() - 1, 0, PADDLE_LIMIT);
+    // this->_stepper->moveTo(target);
+    this->futureTarget = constrain(this->futureTarget - MICRO_STEP, 0, PADDLE_LIMIT);
+    // this->stepIndex = 2;
     // }
-    
 }
 
 Paddle::~Paddle()
@@ -117,10 +116,12 @@ void Paddle::isrReadEncoder0()
 {
     int b = Paddle::instances[0]->readB();
 
-    if(b == LOW)
+    if (b == LOW)
     {
         Paddle::instances[0]->increment();
-    } else {
+    }
+    else
+    {
         Paddle::instances[0]->decrement();
     }
 }
@@ -130,10 +131,12 @@ void Paddle::isrReadEncoder01()
 
     int a = Paddle::instances[0]->readA();
 
-    if(a == HIGH)
+    if (a == HIGH)
     {
         Paddle::instances[0]->increment();
-    } else {
+    }
+    else
+    {
         Paddle::instances[0]->decrement();
     }
 }
@@ -142,10 +145,12 @@ void Paddle::isrReadEncoder10()
 {
     int b = Paddle::instances[1]->readB();
 
-    if(b == LOW)
+    if (b == LOW)
     {
         Paddle::instances[1]->increment();
-    } else {
+    }
+    else
+    {
         Paddle::instances[1]->decrement();
     }
 }
@@ -154,10 +159,12 @@ void Paddle::isrReadEncoder11()
 {
     int a = Paddle::instances[1]->readA();
 
-    if(a == HIGH)
+    if (a == HIGH)
     {
         Paddle::instances[1]->increment();
-    } else {
+    }
+    else
+    {
         Paddle::instances[1]->decrement();
     }
 }
@@ -187,7 +194,7 @@ void Paddle::calibrate()
             p2->_stepper->runSpeed();
         }
 
-        if(p1->limitSwitch->isClicked() && p2->limitSwitch->isClicked())
+        if (p1->limitSwitch->isClicked() && p2->limitSwitch->isClicked())
         {
             Paddle::calibrated = true;
         }
@@ -224,7 +231,8 @@ bool Paddle::isRunning()
 
 void Paddle::update()
 {
-    if(!Paddle::attached){
+    if (!Paddle::attached)
+    {
         return;
     }
     Paddle::instances[0]->_stepper->moveTo(Paddle::instances[0]->futureTarget);
@@ -236,10 +244,9 @@ void Paddle::attachPaddles()
     Paddle::attached = true;
     Paddle::instances[0]->futureTarget = Paddle::instances[0]->_stepper->currentPosition();
     Paddle::instances[1]->futureTarget = Paddle::instances[1]->_stepper->currentPosition();
-    
 
 #ifdef ARDUINO_ARCH_RP2040
-  attachInterrupt(
+    attachInterrupt(
         digitalPinToInterrupt(
             Paddle::instances[0]->_pinA),
         Paddle::isrReadEncoder0, RISING);
@@ -257,7 +264,7 @@ void Paddle::attachPaddles()
     //     Paddle::isrReadEncoder11, RISING);
 #endif
 #ifdef ARDUINO_SAM_DUE
-  attachInterrupt(
+    attachInterrupt(
         digitalPinToInterrupt(
             Paddle::instances[0]->_pinA),
         Paddle::isrReadEncoder0, RISING);
@@ -274,7 +281,6 @@ void Paddle::attachPaddles()
             Paddle::instances[1]->_pinB),
         Paddle::isrReadEncoder11, RISING);
 #endif
-    
 }
 
 void Paddle::detachPaddles()
@@ -301,9 +307,9 @@ void Paddle::resetAcceleration()
     Paddle::instances[1]->_stepper->setAcceleration(PADDLE_ACCELERATION);
 }
 
-byte Paddle::canShoot(long ballPos)
+byte Paddle::canShoot(long ballPos, long ballTarget, long possibleHitOffset)
 {
-    long paddlePos = this->getCenterRelativePosition() + this->stepsToQuickStop();
+    long paddlePos = this->getCenterRelativePosition();
 
     long paddleLeftEdge = paddlePos - PADDLE_WIDTH_HALF;
     long paddleRightEdge = paddlePos + PADDLE_WIDTH_HALF;
@@ -321,9 +327,43 @@ byte Paddle::canShoot(long ballPos)
         // Map the relative position to an angle between 30 and 150 degrees
         return round(map(relativePosition, -hitzone, hitzone, MIN_ANGLE_MUL, MAX_ANGLE_MUL)) * 5;
     }
-    else
+
+    ballLeftEdge = ballPos + possibleHitOffset - BALL_WIDTH_HALF;
+    ballRightEdge = ballPos + possibleHitOffset + BALL_WIDTH_HALF;
+
+    long paddleStopSteps = this->stepsToQuickStop();
+
+    paddleLeftEdge = paddlePos + paddleStopSteps - PADDLE_WIDTH_HALF;
+    paddleRightEdge = paddlePos + paddleStopSteps + PADDLE_WIDTH_HALF;
+
+    if (ballRightEdge >= paddleLeftEdge && ballLeftEdge <= paddleRightEdge)
     {
-        // No collision
-        return 0;
+        double relativePosition = (ballPos + possibleHitOffset - paddlePos + paddleStopSteps);
+
+        return round(map(relativePosition, -hitzone, hitzone, MIN_ANGLE_MUL, MAX_ANGLE_MUL)) * 5;
     }
+
+    ballLeftEdge = ballTarget - BALL_WIDTH_HALF;
+    ballRightEdge = ballTarget + BALL_WIDTH_HALF;
+
+    if (ballRightEdge >= paddleLeftEdge && ballLeftEdge <= paddleRightEdge)
+    {
+        double relativePosition = (ballTarget - paddlePos + paddleStopSteps);
+
+        return round(map(relativePosition, -hitzone, hitzone, MIN_ANGLE_MUL, MAX_ANGLE_MUL)) * 5;
+    }
+
+    paddleLeftEdge = paddlePos - PADDLE_WIDTH_HALF;
+    paddleRightEdge = paddlePos + PADDLE_WIDTH_HALF;
+
+    if ((ballPos < paddleLeftEdge && ballTarget > paddleRightEdge + paddleStopSteps) ||
+        (ballPos > paddleRightEdge && ballTarget < paddleLeftEdge + paddleStopSteps))
+    {
+        // double relativePosition = (ballPos - paddlePos);
+        // return round(map(relativePosition, -hitzone, hitzone, MIN_ANGLE_MUL, MAX_ANGLE_MUL)) * 5;
+        return 90;
+    }
+
+    // No collision
+    return 0;
 }

@@ -78,7 +78,8 @@ public:
 
     void printInfo();
 
-    long getPossibleStopPoint();
+    long getPossibleHitOffset();
+    long getCenterRelativeTargetPosition();
 
     PongStepper *subscriber(){
         return this->_yStepper;
