@@ -74,7 +74,7 @@ public:
 
     long getX();
     long getY();
-    long stepsToSop();
+    long stepsToStopX();
 
     void printInfo();
 

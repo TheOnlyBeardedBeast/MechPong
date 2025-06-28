@@ -93,19 +93,44 @@ void Pong::centerProgress()
 
 void Pong::standBy()
 {
-    if(players[0]->shootButtonR->isClicked() || players[1]->shootButtonR->isClicked())
-    {
-        if(this->calibrated){
-            this->gameState = GameState::CENTER;
-        }
-        else {
-            this->gameState = GameState::CALIBRATION;
-        } 
-        digitalWrite(LED_BUILTIN,LOW);
-        delay(1000);
-        digitalWrite(LED_BUILTIN,HIGH);
+    int clicker = -1;
+    uint32_t clickedTime = time_us_32();
+
+    if (players[0]->shootButtonR->isClicked()) {
+        clicker = 0;
+    } 
+    else if (players[1]->shootButtonR->isClicked()) {
+        clicker = 1;
+    }
+
+    if (clicker == -1) {
         return;
     }
+
+    sleep_ms(10);
+
+    while (players[clicker]->shootButtonR->isClicked()) {
+        sleep_ms(10); 
+    }
+
+    uint32_t heldTime = (time_us_32() - clickedTime) / 1000;
+
+    if (heldTime >= 1000) {
+        this->gameState = GameState::CALIBRATION;
+    } 
+    else 
+    // if (this->calibrated)
+    {
+        this->ball->setCurrentPosition(GAMEPLAY_AREA_X>>1,GAMEPLAY_AREA_Y>>1);
+        Paddle::instances[0]->_stepper->setCurrentPosition(PADDLE_CENTER);
+        Paddle::instances[1]->_stepper->setCurrentPosition(PADDLE_CENTER);
+
+        this->gameState = GameState::CENTER;
+    }
+
+    digitalWrite(LED_BUILTIN, LOW);
+    sleep_ms(1000);
+    digitalWrite(LED_BUILTIN, HIGH); 
 }
 
 void Pong::run()
@@ -326,8 +351,8 @@ void Pong::runMatch()
 
     // POINT OR PADDLE HIT
     if (
-        (this->shooter == Player::Player2 && x >= GAMEPLAY_AREA_X - BALL_SHOOT_OFFSET - this->ball->stepsToSop()) || 
-        (this->shooter == Player::Player1 && x <= BALL_SHOOT_OFFSET + this->ball->stepsToSop())
+        (this->shooter == Player::Player2 && x >= GAMEPLAY_AREA_X - BALL_SHOOT_OFFSET - this->ball->stepsToStopX()) || 
+        (this->shooter == Player::Player1 && x <= BALL_SHOOT_OFFSET + this->ball->stepsToStopX())
     )
     {
         // Serial.println("POINT OR PADDLE HIT");

@@ -13,8 +13,8 @@
 // 6-----1.5875m/s - 3,175step/s
 const uint8_t MICRO_STEP = 2;
 
-constexpr uint16_t MAX_SPEED = 2000 * MICRO_STEP;
-constexpr uint16_t BALL_ACCELERATION = 25000 * MICRO_STEP;
+constexpr uint16_t MAX_SPEED = 1750 * MICRO_STEP;
+constexpr uint16_t BALL_ACCELERATION = 20000 * MICRO_STEP;
 constexpr uint16_t PADDLE_ACCELERATION = 20000 * MICRO_STEP;
 constexpr uint16_t PADDLE_MAX_SPEED = 1400 * MICRO_STEP;
 constexpr uint16_t CALIBRATION_SPEED = 300 * MICRO_STEP;

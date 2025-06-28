@@ -9,12 +9,12 @@ Ball *Ball::instance;
 
 int mapAngleToSpeedX(int angle)
 {
-    return static_cast<int>((abs(sin(angle * PI / 180))) * MAX_SPEED);
+    return static_cast<int>((abs(fastSin(angle))) * MAX_SPEED);
 }
 
 int mapAngleToSpeedY(int angle)
 {
-    return static_cast<int>((abs(cos(angle * PI / 180))) * MAX_SPEED);
+    return static_cast<int>((abs(fastCos(angle))) * MAX_SPEED);
 }
 
 void Ball::init(size_t stepX, size_t dirX, size_t stepY, size_t dirY)
@@ -27,10 +27,10 @@ void Ball::init(size_t stepX, size_t dirX, size_t stepY, size_t dirY)
     this->_xStepper = new PongStepper(stepX, dirX);
     this->_yStepper = new PongStepper(stepY, dirY);
 
-    this->_xStepper->setMaxSpeed(1600);
-    this->_yStepper->setMaxSpeed(1600);
-    this->_xStepper->setAcceleration(20000);
-    this->_yStepper->setAcceleration(20000);
+    this->_xStepper->setMaxSpeed(MAX_SPEED);
+    this->_yStepper->setMaxSpeed(MAX_SPEED);
+    this->_xStepper->setAcceleration(BALL_ACCELERATION);
+    this->_yStepper->setAcceleration(BALL_ACCELERATION);
 }
 
 void Ball::setCurrentPosition(int x, int y)
@@ -204,9 +204,11 @@ long Ball::getY()
     return this->_yStepper->currentPosition();
 }
 
-long Ball::stepsToSop()
+long Ball::stepsToStopX()
 {
-    return this->_xStepper->stepperStepsToStop;
+    long speed = this->_xStepper->speed();
+
+    return (long)((speed * speed) / (BALL_ACCELERATION << 1));
 }
 
 void Ball::printInfo()
@@ -227,7 +229,7 @@ long Ball::getPossibleHitOffset()
 {
     uint16_t relativeNagle = getRelativeAngle(this->lastAngle);
 
-    return this->stepsToSop() * fastTan(relativeNagle) * sign(this->_yStepper->speed());
+    return this->stepsToStopX() * fastTan(relativeNagle) * sign(this->_yStepper->speed());
 }
 
 long Ball::getCenterRelativeTargetPosition()
