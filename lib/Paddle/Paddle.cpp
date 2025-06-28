@@ -307,61 +307,136 @@ void Paddle::resetAcceleration()
     Paddle::instances[1]->_stepper->setAcceleration(PADDLE_ACCELERATION);
 }
 
-byte Paddle::canShoot(long ballPos, long ballTarget, long possibleHitOffset)
+// byte Paddle::tryShoot(long ballPos, long ballTarget, long possibleHitOffset)
+// {
+//     long paddlePos = this->getCenterRelativePosition();
+
+//     long paddleLeftEdge = paddlePos - PADDLE_WIDTH_HALF;
+//     long paddleRightEdge = paddlePos + PADDLE_WIDTH_HALF;
+//     long ballLeftEdge = ballPos - BALL_WIDTH_HALF;
+//     long ballRightEdge = ballPos + BALL_WIDTH_HALF;
+
+//     long hitzone = PADDLE_WIDTH_HALF + BALL_WIDTH_HALF;
+
+//     // // Check if the ball is within the paddle's bounds
+//     // if (ballRightEdge >= paddleLeftEdge && ballLeftEdge <= paddleRightEdge)
+//     // {
+//     //     // Calculate the difference in positions
+//     //     double relativePosition = (ballPos - paddlePos);
+
+//     //     // Map the relative position to an angle between 30 and 150 degrees
+//     //     return round(map(relativePosition, -hitzone, hitzone, MIN_ANGLE_MUL, MAX_ANGLE_MUL)) * 5;
+//     // }
+
+//     ballLeftEdge = ballPos + possibleHitOffset - BALL_WIDTH_HALF;
+//     ballRightEdge = ballPos + possibleHitOffset + BALL_WIDTH_HALF;
+
+//     long paddleStopSteps = this->stepsToQuickStop();
+
+//     paddleLeftEdge = paddlePos + paddleStopSteps - PADDLE_WIDTH_HALF;
+//     paddleRightEdge = paddlePos + paddleStopSteps + PADDLE_WIDTH_HALF;
+
+//     if (ballRightEdge >= paddleLeftEdge && ballLeftEdge <= paddleRightEdge)
+//     {
+//         double relativePosition = (ballPos + possibleHitOffset - paddlePos + paddleStopSteps);
+
+//         return round(map(relativePosition, -hitzone, hitzone, MIN_ANGLE_MUL, MAX_ANGLE_MUL)) * 5;
+//     }
+
+//     ballLeftEdge = ballTarget - BALL_WIDTH_HALF;
+//     ballRightEdge = ballTarget + BALL_WIDTH_HALF;
+
+//     if (ballRightEdge >= paddleLeftEdge && ballLeftEdge <= paddleRightEdge)
+//     {
+//         double relativePosition = (ballTarget - paddlePos + paddleStopSteps);
+
+//         return round(map(relativePosition, -hitzone, hitzone, MIN_ANGLE_MUL, MAX_ANGLE_MUL)) * 5;
+//     }
+
+//     paddleLeftEdge = paddlePos - PADDLE_WIDTH_HALF;
+//     paddleRightEdge = paddlePos + PADDLE_WIDTH_HALF;
+
+//     // if ((ballPos < paddleLeftEdge && ballTarget > paddleRightEdge + paddleStopSteps) ||
+//     //     (ballPos > paddleRightEdge && ballTarget < paddleLeftEdge + paddleStopSteps))
+//     // {
+//     //     // double relativePosition = (ballPos - paddlePos);
+//     //     // return round(map(relativePosition, -hitzone, hitzone, MIN_ANGLE_MUL, MAX_ANGLE_MUL)) * 5;
+//     //     return 90;
+//     // }
+
+//     if ((ballPos < paddleLeftEdge && ballTarget > paddleRightEdge + paddleStopSteps) ||
+//         (ballPos > paddleRightEdge && ballTarget < paddleLeftEdge + paddleStopSteps))
+//     {
+//         long estimatedCrossPos = (paddleLeftEdge + paddleRightEdge + paddleStopSteps) / 2;
+
+//         double relativePosition = estimatedCrossPos - paddlePos + paddleStopSteps;
+
+//         relativePosition = constrain(relativePosition, -hitzone, hitzone);
+
+//         return round(map(relativePosition, -hitzone, hitzone, MIN_ANGLE_MUL, MAX_ANGLE_MUL)) * 5;
+//     }
+
+//     // No collision
+//     return 0;
+// }
+
+byte Paddle::tryShoot(long ballPos, long ballTarget, long possibleHitOffset)
 {
     long paddlePos = this->getCenterRelativePosition();
-
-    long paddleLeftEdge = paddlePos - PADDLE_WIDTH_HALF;
-    long paddleRightEdge = paddlePos + PADDLE_WIDTH_HALF;
-    long ballLeftEdge = ballPos - BALL_WIDTH_HALF;
-    long ballRightEdge = ballPos + BALL_WIDTH_HALF;
+    long paddleStopSteps = this->stepsToQuickStop();
 
     long hitzone = PADDLE_WIDTH_HALF + BALL_WIDTH_HALF;
 
-    // Check if the ball is within the paddle's bounds
-    if (ballRightEdge >= paddleLeftEdge && ballLeftEdge <= paddleRightEdge)
-    {
-        // Calculate the difference in positions
-        double relativePosition = (ballPos - paddlePos);
+    // Paddle edges - current and future (after stop steps)
+    long paddleLeftEdge = paddlePos - PADDLE_WIDTH_HALF;
+    long paddleRightEdge = paddlePos + PADDLE_WIDTH_HALF;
+    long paddleLeftEdgeFuture = paddleLeftEdge + paddleStopSteps;
+    long paddleRightEdgeFuture = paddleRightEdge + paddleStopSteps;
 
-        // Map the relative position to an angle between 30 and 150 degrees
+    // Ball edges - raw position
+    long ballLeftEdge = ballPos - BALL_WIDTH_HALF;
+    long ballRightEdge = ballPos + BALL_WIDTH_HALF;
+
+    // Ball edges - with possibleHitOffset
+    long ballLeftEdgeOffset = ballPos + possibleHitOffset - BALL_WIDTH_HALF;
+    long ballRightEdgeOffset = ballPos + possibleHitOffset + BALL_WIDTH_HALF;
+
+    // Ball edges - target position
+    long ballLeftEdgeTarget = ballTarget - BALL_WIDTH_HALF;
+    long ballRightEdgeTarget = ballTarget + BALL_WIDTH_HALF;
+
+    // First check: raw position overlap
+    // if (ballRightEdge >= paddleLeftEdge && ballLeftEdge <= paddleRightEdge)
+    // {
+    //     double relativePosition = ballPos - paddlePos;
+    //     relativePosition = constrain(relativePosition, -hitzone, hitzone);
+    //     return round(map(relativePosition, -hitzone, hitzone, MIN_ANGLE_MUL, MAX_ANGLE_MUL)) * 5;
+    // }
+
+    // Second check: predicted with offset
+    if (ballRightEdgeOffset >= paddleLeftEdgeFuture && ballLeftEdgeOffset <= paddleRightEdgeFuture)
+    {
+        double relativePosition = ballPos + possibleHitOffset - paddlePos + paddleStopSteps;
+        relativePosition = constrain(relativePosition, -hitzone, hitzone);
         return round(map(relativePosition, -hitzone, hitzone, MIN_ANGLE_MUL, MAX_ANGLE_MUL)) * 5;
     }
 
-    ballLeftEdge = ballPos + possibleHitOffset - BALL_WIDTH_HALF;
-    ballRightEdge = ballPos + possibleHitOffset + BALL_WIDTH_HALF;
-
-    long paddleStopSteps = this->stepsToQuickStop();
-
-    paddleLeftEdge = paddlePos + paddleStopSteps - PADDLE_WIDTH_HALF;
-    paddleRightEdge = paddlePos + paddleStopSteps + PADDLE_WIDTH_HALF;
-
-    if (ballRightEdge >= paddleLeftEdge && ballLeftEdge <= paddleRightEdge)
+    // Third check: ball's target edges overlap future paddle edges
+    if (ballRightEdgeTarget >= paddleLeftEdgeFuture && ballLeftEdgeTarget <= paddleRightEdgeFuture)
     {
-        double relativePosition = (ballPos + possibleHitOffset - paddlePos + paddleStopSteps);
-
+        double relativePosition = ballTarget - paddlePos + paddleStopSteps;
+        relativePosition = constrain(relativePosition, -hitzone, hitzone);
         return round(map(relativePosition, -hitzone, hitzone, MIN_ANGLE_MUL, MAX_ANGLE_MUL)) * 5;
     }
 
-    ballLeftEdge = ballTarget - BALL_WIDTH_HALF;
-    ballRightEdge = ballTarget + BALL_WIDTH_HALF;
-
-    if (ballRightEdge >= paddleLeftEdge && ballLeftEdge <= paddleRightEdge)
+    // Final check: crossing through paddle
+    if ((ballPos < paddleLeftEdge && ballTarget > paddleRightEdgeFuture) ||
+        (ballPos > paddleRightEdge && ballTarget < paddleLeftEdgeFuture))
     {
-        double relativePosition = (ballTarget - paddlePos + paddleStopSteps);
-
+        long estimatedCrossPos = (paddleLeftEdge + paddleRightEdge + paddleStopSteps) / 2;
+        double relativePosition = estimatedCrossPos - paddlePos + paddleStopSteps;
+        relativePosition = constrain(relativePosition, -hitzone, hitzone);
         return round(map(relativePosition, -hitzone, hitzone, MIN_ANGLE_MUL, MAX_ANGLE_MUL)) * 5;
-    }
-
-    paddleLeftEdge = paddlePos - PADDLE_WIDTH_HALF;
-    paddleRightEdge = paddlePos + PADDLE_WIDTH_HALF;
-
-    if ((ballPos < paddleLeftEdge && ballTarget > paddleRightEdge + paddleStopSteps) ||
-        (ballPos > paddleRightEdge && ballTarget < paddleLeftEdge + paddleStopSteps))
-    {
-        // double relativePosition = (ballPos - paddlePos);
-        // return round(map(relativePosition, -hitzone, hitzone, MIN_ANGLE_MUL, MAX_ANGLE_MUL)) * 5;
-        return 90;
     }
 
     // No collision

@@ -21,7 +21,7 @@ public:
     // methods
     void initializeEncoder(int A, int B);
     void initializeStepper(int step, int dir);
-    byte canShoot(long ballPos, long ballTarget, long possibleHitOffset);
+    byte tryShoot(long ballPos, long ballTarget, long possibleHitOffset);
 
     void stop();
     void center();

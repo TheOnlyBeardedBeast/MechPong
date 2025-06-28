@@ -337,7 +337,7 @@ void Pong::runMatch()
 
         Player nextShooter = this->shooter == Player::Player1 ? Player::Player2 : Player::Player1;
 
-        byte shot = this->players[(int)nextShooter]->paddle->canShoot(
+        byte shot = this->players[(int)nextShooter]->paddle->tryShoot(
             ball->getCenterRelativePosition(), ball->getCenterRelativeTargetPosition(), ball->getPossibleHitOffset()
         );
 
