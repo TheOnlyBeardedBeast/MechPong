@@ -2,6 +2,10 @@
 
 Pong::Pong()
 {
+    // GPIO 27 and 28 cant be used as input
+    // The board freezes
+    // Further information says 27 and 28 are reserved for external memory
+    
     this->ball = new Ball();
     this->ball->init(18,19,21,20);
     this->ball->instance = this->ball;
@@ -15,16 +19,18 @@ Pong::Pong()
     paddle0->_stepper->setCurrentPosition(-BALL_WIDTH);
     paddle0->limitSwitch = new Switch(3);
 
-    PongPlayer *player0 = new PongPlayer(paddle0, new Switch(2));
+    PongPlayer *player0 = new PongPlayer(paddle0, new Switch(2), new Switch(2)); // 28
 
     Paddle *paddle1 = new Paddle();
     paddle1->initializeStepper(10,11);
     paddle1->initializeEncoder(14,15);
     paddle1->_stepper->setCurrentPosition(-BALL_WIDTH);
     paddle1->limitSwitch = new Switch(12);
+
+    // audio 22-21
     
 
-    PongPlayer *player1 = new PongPlayer(paddle1, new Switch(16));
+    PongPlayer *player1 = new PongPlayer(paddle1, new Switch(13), new Switch(13)); //27
 
     Paddle::instances[0] = paddle0;
     Paddle::instances[1] = paddle1;
@@ -94,6 +100,7 @@ void Pong::centerProgress()
 void Pong::standBy()
 {
     int clicker = -1;
+
     uint32_t clickedTime = time_us_32();
 
     if (players[0]->shootButtonR->isClicked()) {
@@ -119,7 +126,6 @@ void Pong::standBy()
         this->gameState = GameState::CALIBRATION;
     } 
     else 
-    // if (this->calibrated)
     {
         this->ball->setCurrentPosition(GAMEPLAY_AREA_X>>1,GAMEPLAY_AREA_Y>>1);
         Paddle::instances[0]->_stepper->setCurrentPosition(PADDLE_CENTER);

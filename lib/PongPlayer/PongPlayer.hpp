@@ -8,6 +8,7 @@ class PongPlayer
 public:
     Paddle *paddle;
     Switch *shootButtonR;
+    Switch *shootButtonL;
 
-    PongPlayer(Paddle *paddle, Switch *shootButtonR);
+    PongPlayer(Paddle *paddle, Switch *shootButtonR, Switch *shootButtonL);
 };
