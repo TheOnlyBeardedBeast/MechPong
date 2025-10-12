@@ -199,7 +199,7 @@ void Paddle::calibrate()
             Paddle::calibrated = true;
         }
 
-        delay(1);
+        sleep_ms(1);
     }
 
     p1->_stepper->setCurrentPosition(-BALL_WIDTH - BALL_WIDTH_HALF);
@@ -213,7 +213,7 @@ void Paddle::centerAll()
 
     p1->_stepper->moveTo(PADDLE_CENTER);
     p2->_stepper->moveTo(PADDLE_CENTER);
-    delay(1);
+    sleep_ms(1);
 }
 
 void Paddle::run()

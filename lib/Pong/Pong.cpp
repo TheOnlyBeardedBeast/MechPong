@@ -21,7 +21,7 @@ Pong::Pong()
     paddle0->_stepper->setCurrentPosition(-BALL_WIDTH);
     paddle0->limitSwitch = new Switch(3);
 
-    PongPlayer *player0 = new PongPlayer(paddle0, new Switch(2), new Switch(2)); // 28
+    PongPlayer *player0 = new PongPlayer(paddle0, new Switch(2), new Switch(2));
 
     Paddle *paddle1 = new Paddle();
     paddle1->initializeStepper(10,11);
@@ -29,10 +29,7 @@ Pong::Pong()
     paddle1->_stepper->setCurrentPosition(-BALL_WIDTH);
     paddle1->limitSwitch = new Switch(12);
 
-    // audio 22-21
-    
-
-    PongPlayer *player1 = new PongPlayer(paddle1, new Switch(13), new Switch(13)); //27
+    PongPlayer *player1 = new PongPlayer(paddle1, new Switch(13), new Switch(13));
 
     Paddle::instances[0] = paddle0;
     Paddle::instances[1] = paddle1;
@@ -44,7 +41,7 @@ Pong::Pong()
 void Pong::calibrate()
 {
     Paddle::calibrate();
-    delay(1000);
+    sleep_ms(1000);
 
     Paddle::centerAll();
 
@@ -54,10 +51,10 @@ void Pong::calibrate()
         sleep_us(1);
     }
 
-    delay(1000);
+    sleep_ms(1000);
 
     this->ball->calibrate();
-    delay(1000);
+    sleep_ms(1000);
 
     this->ball->center();
 
@@ -67,7 +64,7 @@ void Pong::calibrate()
         sleep_us(1);
     }
 
-    delay(1000);
+    sleep_ms(1000);
 
     this->calibrated = true;
     this->gameState = GameState::CENTER;
@@ -130,6 +127,9 @@ void Pong::standBy()
         this->ball->setCurrentPosition(GAMEPLAY_AREA_X>>1,GAMEPLAY_AREA_Y>>1);
         Paddle::instances[0]->_stepper->setCurrentPosition(PADDLE_CENTER);
         Paddle::instances[1]->_stepper->setCurrentPosition(PADDLE_CENTER);
+
+        this->sound->trackPlayPoly(4);
+        sleep_ms(2000);
 
         this->gameState = GameState::CENTER;
     }
@@ -276,18 +276,13 @@ void Pong::initMatch()
 
     if (this->shooter == Player::Player1)
     {
-        // this->ball->setposition(GAMEPLAY_AREA_X, (GAMEPLAY_AREA_Y >> 1) + players[this->shooter]->paddle->getCenterRelativePosition());
         this->ball->setposition(GAMEPLAY_AREA_X - BALL_OFFSET, (GAMEPLAY_AREA_Y >> 1) + players[this->shooter]->paddle->getCenterRelativePosition());
     }
     else
     {
-        // this->ball->setposition(0, (GAMEPLAY_AREA_Y >> 1) + players[this->shooter]->paddle->getCenterRelativePosition());
         this->ball->setposition(BALL_OFFSET, (GAMEPLAY_AREA_Y >> 1) + players[this->shooter]->paddle->getCenterRelativePosition());
     }
 
-    // Serial.println("INIT_MATCH:DONE");
-    // Serial.println(this->ball->isRunning());
-    this->sound->trackPlayPoly(4);
     this->gameState = GameState::MATCH_INIT_PROGRESS;
 }
 
@@ -298,7 +293,6 @@ void Pong::initMatchProgress()
         return;
     }
 
-    // Serial.println("INIT_MATCH_PROGRESS:DONE");
     this->gameState = GameState::MATCH_INIT_DONE;
 }
 
@@ -310,7 +304,6 @@ void Pong::initMatchDone()
 
     Paddle::attachPaddles();
 
-    // Serial.println("INIT_MATCH_DONE:DONE");
     this->gameState = GameState::MATCH_SERVE;
 }
 
@@ -328,7 +321,7 @@ void Pong::serveMatch()
             float angle = ((modifier * 5.f) + (this->shooter == Player::Player1 ? 180.f : 0.0f));
 
         this->ball->shootDeg(angle,false);
-        // Serial.println("SERVE:DONE");
+        this->sound->trackPlayPoly(2);
         this->gameState = GameState::SERVE_PROGRESS;
         return;
     }
@@ -345,10 +338,6 @@ void Pong::serveProgress()
         return;
     }
     
-    // Serial.println("Serve progress");
-    // Serial.println("SERVE X:");
-    // Serial.println(""+x);
-    // Serial.println("SERVER_PROGRESS:DONE");
     this->gameState = GameState::MATCH_RUN;
 }
 
@@ -362,11 +351,6 @@ void Pong::runMatch()
         (this->shooter == Player::Player1 && x <= BALL_SHOOT_OFFSET + this->ball->stepsToStopX())
     )
     {
-        // Serial.println("POINT OR PADDLE HIT");
-
-        // Serial.println("HIT X:");
-        // Serial.println(x);
-
         Player nextShooter = this->shooter == Player::Player1 ? Player::Player2 : Player::Player1;
 
         byte shot = this->players[(int)nextShooter]->paddle->tryShoot(
@@ -384,7 +368,6 @@ void Pong::runMatch()
             this->ball->shootDeg(angle,false);
             this->shooter = nextShooter;
             this->sound->trackPlayPoly(2);
-            // Serial.println("PADDLE_HIT:DONE");
             this->gameState = GameState::SERVE_PROGRESS;
             return;
         }
@@ -402,22 +385,17 @@ void Pong::runMatch()
 
         if (score.checkForWinner())
         {
-            delay(2000);
+            sleep_ms(2000);
 
             score.resetScore();
 
             this->shooter = nextShooter;
             this->lastWinner = Player::NOONE;
-            // Serial.println("GAME_WIN:DONE");
             this->gameState = GameState::ALIGN_BALL_END;
             return;
         }
-
         
-
-        // Serial.println("POINT_HIT:DONE");
-        
-        delay(1000);
+        sleep_ms(1000);
         this->shooter = nextShooter;
         this->gameState = GameState::ALIGN_BALL;
         return;
@@ -443,7 +421,7 @@ void Pong::runMatch()
 
 void Pong::endMatch()
 {
-    delay(1000);
+    sleep_ms(1000);
     this->ball->center();
 
     this->gameState = GameState::CENTER_PROGRESS;

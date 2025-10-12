@@ -7,21 +7,16 @@ Pong *game;
 volatile bool initialized = false;
 
 void setup() {
-  // Serial.begin(115200);
-  // while (!Serial)
-  // {
-  // }
-  
   initTrigTables();
 
-  delay(1000);
+  sleep_ms(1000);
 
   game = new Pong();
 
   pinMode(LED_BUILTIN,OUTPUT);
   digitalWrite(LED_BUILTIN,HIGH);
   initialized = true;
-  delay(2000);
+  sleep_ms(2000);
 }
 
 void setup1()
@@ -30,7 +25,7 @@ void setup1()
   {
   }
   
-  delay(2000);
+  sleep_ms(2000);
 }
 
 void loop() {
