@@ -6,6 +6,7 @@
 #include <Player.hpp>
 #include <Ball.hpp>
 #include <PongPlayer.hpp>
+#include <WavTrigger.hpp>
 
 class Pong
 {
@@ -40,4 +41,5 @@ private:
     Player lastWinner = Player::NOONE;
     Player shooter = Player::NOONE;
     ScoreBoard score;
+    WavTrigger *sound;
 };

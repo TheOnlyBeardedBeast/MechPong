@@ -14,6 +14,8 @@ void setup() {
   
   initTrigTables();
 
+  delay(1000);
+
   game = new Pong();
 
   pinMode(LED_BUILTIN,OUTPUT);

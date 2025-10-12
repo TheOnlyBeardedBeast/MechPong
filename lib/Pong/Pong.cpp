@@ -5,7 +5,9 @@ Pong::Pong()
     // GPIO 27 and 28 cant be used as input
     // The board freezes
     // Further information says 27 and 28 are reserved for external memory
-    
+    this->sound = new WavTrigger();
+    this->sound->start();
+
     this->ball = new Ball();
     this->ball->init(18,19,21,20);
     this->ball->instance = this->ball;
@@ -91,8 +93,6 @@ void Pong::centerProgress()
         return;
     }
 
-    // TODO: put the game into stand by mode so the game can be started by the ball shooting button
-    // this->gameState = GameState::STAND_BY;
     this->gameState = GameState::MATCH_INIT;
     return;
 }
@@ -287,6 +287,7 @@ void Pong::initMatch()
 
     // Serial.println("INIT_MATCH:DONE");
     // Serial.println(this->ball->isRunning());
+    this->sound->trackPlayPoly(4);
     this->gameState = GameState::MATCH_INIT_PROGRESS;
 }
 
@@ -382,11 +383,13 @@ void Pong::runMatch()
             float angle = (shot + (nextShooter == Player::Player1 ? 180.f : 0.0f));
             this->ball->shootDeg(angle,false);
             this->shooter = nextShooter;
+            this->sound->trackPlayPoly(2);
             // Serial.println("PADDLE_HIT:DONE");
             this->gameState = GameState::SERVE_PROGRESS;
             return;
         }
 
+        this->sound->trackPlayPoly(3);
         score.incrementScore(this->shooter);
 
         Paddle::detachPaddles();
@@ -430,6 +433,7 @@ void Pong::runMatch()
     )
     {
         ball->bounce();
+        this->sound->trackPlayPoly(1);
         this->gameState = GameState::BOUNCE_PROGRESS;
         return;
     }
