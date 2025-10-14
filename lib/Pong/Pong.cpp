@@ -12,7 +12,7 @@ Pong::Pong()
     this->ball->init(18,19,21,20);
     this->ball->instance = this->ball;
     this->ball->_xStepper->setCurrentPosition(-BALL_WIDTH_HALF);
-    this->ball->limitSwitchX = new Switch(17);
+    this->ball->limitSwitchX = new Switch(26);
     this->ball->limitSwitchY = new Switch(22);
 
     Paddle *paddle0 = new Paddle();
