@@ -436,9 +436,5 @@ void Pong::bounceProgess()
         return;
     }
 
-    // Serial.println("Bounce progress");
-    // Serial.println("Bounce Y:");
-    // Serial.println(y);
-
     this->gameState = GameState::MATCH_RUN;
 }
