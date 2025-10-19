@@ -31,7 +31,7 @@ void Paddle::initializeStepper(int step, int dir)
 
 void Paddle::center()
 {
-    this->_stepper->moveTo(PADDLE_CENTER);
+    this->_stepper->moveToAsync(PADDLE_CENTER);
 }
 
 void Paddle::stop()
@@ -266,8 +266,8 @@ void Paddle::centerAll()
     Paddle *p1 = Paddle::instances[0];
     Paddle *p2 = Paddle::instances[1];
 
-    p1->_stepper->moveTo(PADDLE_CENTER);
-    p2->_stepper->moveTo(PADDLE_CENTER);
+    p1->_stepper->moveToAsync(PADDLE_CENTER);
+    p2->_stepper->moveToAsync(PADDLE_CENTER);
     sleep_ms(1);
 }
 
@@ -290,8 +290,8 @@ void Paddle::update()
     {
         return;
     }
-    Paddle::instances[0]->_stepper->moveTo(Paddle::instances[0]->futureTarget);
-    Paddle::instances[1]->_stepper->moveTo(Paddle::instances[1]->futureTarget);
+    Paddle::instances[0]->_stepper->moveToAsync(Paddle::instances[0]->futureTarget);
+    Paddle::instances[1]->_stepper->moveToAsync(Paddle::instances[1]->futureTarget);
 }
 
 void Paddle::attachPaddles()

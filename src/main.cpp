@@ -38,8 +38,8 @@ void loop1() {
   if(game->gameState != GameState::CALIBRATION)
   {
     Paddle::update();
-    Paddle::run();
-    game->ball->run();
+    // Paddle::run();
+    // game->ball->run();
   }
   sleep_us(1);
 }

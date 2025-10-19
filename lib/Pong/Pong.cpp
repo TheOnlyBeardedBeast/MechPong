@@ -18,6 +18,7 @@ Pong::Pong()
     Paddle *paddle0 = new Paddle();
     paddle0->initializeStepper(4,5);
     paddle0->initializeEncoder(1,0);
+    paddle0->_stepper->pool = alarm_pool_create(2,4);
     paddle0->_stepper->setCurrentPosition(-BALL_WIDTH);
     paddle0->limitSwitch = new Switch(3);
 
@@ -26,6 +27,7 @@ Pong::Pong()
     Paddle *paddle1 = new Paddle();
     paddle1->initializeStepper(10,11);
     paddle1->initializeEncoder(14,15);
+    paddle1->_stepper->pool = alarm_pool_create(3,4);
     paddle1->_stepper->setCurrentPosition(-BALL_WIDTH);
     paddle1->limitSwitch = new Switch(12);
 
@@ -73,8 +75,8 @@ void Pong::calibrate()
 void Pong::center()
 {
     score.resetScore();
-    Paddle::instances[0]->_stepper->moveTo(PADDLE_CENTER);
-    Paddle::instances[1]->_stepper->moveTo(PADDLE_CENTER);
+    Paddle::instances[0]->_stepper->moveToAsync(PADDLE_CENTER);
+    Paddle::instances[1]->_stepper->moveToAsync(PADDLE_CENTER);
 
     this->ball->center();
 
@@ -205,8 +207,8 @@ void Pong::run()
 void Pong::centerStandBy()
 {
     score.resetScore();
-    Paddle::instances[0]->_stepper->moveTo(PADDLE_CENTER);
-    Paddle::instances[1]->_stepper->moveTo(PADDLE_CENTER);
+    Paddle::instances[0]->_stepper->moveToAsync(PADDLE_CENTER);
+    Paddle::instances[1]->_stepper->moveToAsync(PADDLE_CENTER);
 
     this->ball->center();
 
