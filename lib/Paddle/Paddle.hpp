@@ -62,6 +62,8 @@ private:
     int readB();
     void increment();
     void decrement();
+    uint8_t pulse_history = 0;
+    uint32_t last_pulse_time = 0;
 
 public:
     void subscribe(PaddleSubscriber *subscriber)

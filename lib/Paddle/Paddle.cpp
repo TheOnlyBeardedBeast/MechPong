@@ -58,7 +58,7 @@ void Paddle::increment()
     // if(this->stepIndex==4){
     //     // long target = constrain(this->_stepper->targetPosition() + 1, 0, PADDLE_LIMIT);
     //     // this->_stepper->moveTo(target);
-    this->futureTarget = constrain(this->futureTarget + MICRO_STEP, 0, PADDLE_LIMIT);
+    this->futureTarget = constrain(this->futureTarget + 1, 0, PADDLE_LIMIT);
     //     this->stepIndex = 2;
     // }
 }
@@ -71,7 +71,7 @@ void Paddle::decrement()
     // {
     // long target = constrain(this->_stepper->targetPosition() - 1, 0, PADDLE_LIMIT);
     // this->_stepper->moveTo(target);
-    this->futureTarget = constrain(this->futureTarget - MICRO_STEP, 0, PADDLE_LIMIT);
+    this->futureTarget = constrain(this->futureTarget - 1, 0, PADDLE_LIMIT);
     // this->stepIndex = 2;
     // }
 }
@@ -116,14 +116,26 @@ void Paddle::isrReadEncoder0()
 {
     int b = Paddle::instances[0]->readB();
 
-    if (b == LOW)
-    {
-        Paddle::instances[0]->increment();
-    }
-    else
-    {
-        Paddle::instances[0]->decrement();
-    }
+    // uint32_t now = time_us_32();
+    // uint32_t dt = now - Paddle::instances[0]->last_pulse_time;
+    // Paddle::instances[0]->last_pulse_time = now;
+
+    // Paddle::instances[0]->pulse_history >>= 1;
+    // if (dt <= 5000)  // 5 ms threshold
+    //     Paddle::instances[0]->pulse_history |= 0x80;  // set MSB
+    // // else leave MSB = 0
+
+    // if (Paddle::instances[0]->pulse_history == 0xFF)
+    // {
+        if (b == LOW)
+        {
+            Paddle::instances[0]->increment();
+        }
+        else
+        {
+            Paddle::instances[0]->decrement();
+        }
+    // }
 }
 
 void Paddle::isrReadEncoder01()
@@ -145,14 +157,26 @@ void Paddle::isrReadEncoder10()
 {
     int b = Paddle::instances[1]->readB();
 
-    if (b == LOW)
-    {
-        Paddle::instances[1]->increment();
-    }
-    else
-    {
-        Paddle::instances[1]->decrement();
-    }
+    // uint32_t now = time_us_32();
+    // uint32_t dt = now - Paddle::instances[1]->last_pulse_time;
+    // Paddle::instances[1]->last_pulse_time = now;
+
+    // Paddle::instances[1]->pulse_history >>= 1;
+    // if (dt <= 5000)  // 5 ms threshold
+    //     Paddle::instances[1]->pulse_history |= 0x80;  // set MSB
+    // // else leave MSB = 0
+
+    // if (Paddle::instances[1]->pulse_history == 0xFF)
+    // {
+        if (b == LOW)
+        {
+            Paddle::instances[1]->increment();
+        }
+        else
+        {
+            Paddle::instances[1]->decrement();
+        }
+    // }
 }
 
 void Paddle::isrReadEncoder11()
@@ -250,18 +274,18 @@ void Paddle::attachPaddles()
         digitalPinToInterrupt(
             Paddle::instances[0]->_pinA),
         Paddle::isrReadEncoder0, RISING);
-    // attachInterrupt(
-    //     digitalPinToInterrupt(
-    //         Paddle::instances[0]->_pinB),
-    //     Paddle::isrReadEncoder01, RISING);
+    attachInterrupt(
+        digitalPinToInterrupt(
+            Paddle::instances[0]->_pinB),
+        Paddle::isrReadEncoder01, RISING);
     attachInterrupt(
         digitalPinToInterrupt(
             Paddle::instances[1]->_pinA),
         Paddle::isrReadEncoder10, RISING);
-    // attachInterrupt(
-    //     digitalPinToInterrupt(
-    //         Paddle::instances[1]->_pinB),
-    //     Paddle::isrReadEncoder11, RISING);
+    attachInterrupt(
+        digitalPinToInterrupt(
+            Paddle::instances[1]->_pinB),
+        Paddle::isrReadEncoder11, RISING);
 #endif
 #ifdef ARDUINO_SAM_DUE
     attachInterrupt(
