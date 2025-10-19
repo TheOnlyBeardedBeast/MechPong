@@ -27,6 +27,9 @@ void Ball::init(size_t stepX, size_t dirX, size_t stepY, size_t dirY)
     this->_xStepper = new PongStepper(stepX, dirX);
     this->_yStepper = new PongStepper(stepY, dirY);
 
+    this->_xStepper->pool = alarm_pool_create(0,4);
+    this->_yStepper->pool = alarm_pool_create(1,4);
+
     this->_xStepper->setMaxSpeed(MAX_SPEED);
     this->_yStepper->setMaxSpeed(MAX_SPEED);
     this->_xStepper->setAcceleration(BALL_ACCELERATION);
@@ -41,8 +44,8 @@ void Ball::setCurrentPosition(int x, int y)
 
 void Ball::setposition(int x, int y)
 {
-    this->_xStepper->moveTo(x);
-    this->_yStepper->moveTo(y);
+    this->_xStepper->moveToAsync(x);
+    this->_yStepper->moveToAsync(y);
 }
 
 void Ball::stop()
@@ -160,9 +163,9 @@ void Ball::shootAngle(float angleRadians, bool isBounce)
 
     if (!isBounce)
     {
-        this->_xStepper->moveTo(verticalModifier ? GAMEPLAY_AREA_X : 0);
+        this->_xStepper->moveToAsync(verticalModifier ? GAMEPLAY_AREA_X : 0);
     }
-    this->_yStepper->moveTo(newY);
+    this->_yStepper->moveToAsync(newY);
 }
 
 uint16_t Ball::inverseAngle(int16_t angle)

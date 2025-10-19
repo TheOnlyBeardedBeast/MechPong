@@ -11,9 +11,35 @@ void PaddleStepper::moveTo(long absolute)
         if(this->subscriber != NULL)
         {
             // TODO: handle different sizes
-            this->subscriber->moveTo(absolute+BALL_WIDTH);
+            this->subscriber->moveToAsync(absolute+BALL_WIDTH);
         }
     }
+}
+
+void PaddleStepper::moveToAsync(long absolute)
+{
+    uint32_t save = save_and_disable_interrupts();
+    bool shouldStart = !this->isRunning();
+
+    if (_targetPos != absolute)
+    {
+        _targetPos = absolute;
+        computeNewSpeed();
+
+        if(shouldStart)
+        {
+            this->updateDirection();
+
+            alarm_pool_add_alarm_in_us(this->pool,this->_stepInterval,paddle_alarm_callback,this,true);
+        }
+
+        if(this->subscriber != NULL)
+        {
+            this->subscriber->moveToAsync(absolute+BALL_WIDTH);
+        }
+    }
+
+    restore_interrupts(save);
 }
 
 void PaddleStepper::updateDirection()
@@ -400,4 +426,40 @@ void PaddleStepper::subscribe(PaddleSubscriber *subscriber)
 void PaddleStepper::unsubscribe()
 {
     this->subscriber = NULL;
+}
+
+int64_t PaddleStepper::runAsync()
+{
+    if(this->shouldClear) {
+       this->clear();
+       this->updateDirection();
+
+       return this->_stepInterval > 0 ? this->_stepInterval - 10 : 0;
+    }
+    else 
+    {
+        if (_direction == true)
+        {
+            // Clockwise
+            _currentPos += 1;
+        }
+        else
+        {
+            // Anticlockwise
+            _currentPos -= 1;
+        }
+        step(_currentPos);
+
+        _lastStepTime = time_us_32();
+
+        computeNewSpeed();
+
+        return 10;
+    }
+}
+
+int64_t paddle_alarm_callback(alarm_id_t id, void *user_data) 
+{
+    auto *stepper = static_cast<PaddleStepper*>(user_data);
+    return stepper->runAsync();
 }

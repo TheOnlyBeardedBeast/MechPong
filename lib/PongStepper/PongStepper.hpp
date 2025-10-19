@@ -44,6 +44,8 @@ public:
     /// anticlockwise from the 0 position.
     void moveTo(long absolute);
 
+    void moveToAsync(long absolute);
+
     /// Poll the motor and step it if a step is due, implementing
     /// accelerations and decelerations to acheive the target position. You must call this as
     /// frequently as possible, but at least once per minimum step time interval,
@@ -57,6 +59,8 @@ public:
     /// frequently as possible, but at least once per step interval,
     /// \return true if the motor was stepped.
     boolean runSpeed();
+
+    int64_t runAsync();
 
     /// Sets the maximum permitted speed. The run() function will accelerate
     /// up to the speed set by this function.
@@ -175,6 +179,7 @@ public:
     void externalUpdateDirection(bool dir);
     void externalStep(long step);
     long stepperStepsToStop = 0;
+    alarm_pool_t *pool = NULL;
 
 protected:
     /// Forces the library to compute a new instantaneous speed and set that as
@@ -276,3 +281,5 @@ private: // 0, 1, 2, 4, 8, See MotorInterfaceType
 
     bool shouldClear = false;
 };
+
+int64_t alarm_callback(alarm_id_t id, void *user_data);

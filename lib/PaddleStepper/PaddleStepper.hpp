@@ -44,7 +44,8 @@ public:
     /// If you are trying to use constant speed movements, you should call setSpeed() after calling moveTo().
     /// \param[in] absolute The desired absolute position. Negative is
     /// anticlockwise from the 0 position.
-    void    moveTo(long absolute); 
+    void    moveTo(long absolute);
+    void    moveToAsync(long absolute); 
 
     /// Poll the motor and step it if a step is due, implementing
     /// accelerations and decelerations to acheive the target position. You must call this as
@@ -53,6 +54,7 @@ public:
     /// based on the current speed and the time since the last step.
     /// \return true if the motor is still running to the target position.
     boolean run();
+    int64_t runAsync();
 
     /// Poll the motor and step it if a step is due, implementing a constant
     /// speed as set by the most recent call to setSpeed(). You must call this as
@@ -183,6 +185,7 @@ public:
     void    move(long relative);
 
     long stepperStepsToStop = 0;
+    alarm_pool_t *pool = NULL;
 
 protected:
     /// Forces the library to compute a new instantaneous speed and set that as
@@ -282,3 +285,5 @@ private:      // 0, 1, 2, 4, 8, See MotorInterfaceType
 
     bool shouldClear = false;
 };
+
+int64_t paddle_alarm_callback(alarm_id_t id, void *user_data);

@@ -1,5 +1,6 @@
 #include "PongStepper.hpp"
 
+// TODO: Add movetoAsync which start the timer, if the timer is not running
 void PongStepper::moveTo(long absolute)
 {
     if (_targetPos != absolute)
@@ -7,6 +8,27 @@ void PongStepper::moveTo(long absolute)
         _targetPos = absolute;
         computeNewSpeed();
     }
+}
+
+void PongStepper::moveToAsync(long absolute)
+{
+    uint32_t save = save_and_disable_interrupts();
+    bool shouldStart = !this->isRunning();
+
+    if (_targetPos != absolute)
+    {
+        _targetPos = absolute;
+        computeNewSpeed();
+
+        if(shouldStart)
+        {
+            this->updateDirection();
+
+            alarm_pool_add_alarm_in_us(this->pool,this->_stepInterval,alarm_callback,this,true);
+        }
+    }
+
+    restore_interrupts(save);
 }
 
 void PongStepper::updateDirection()
@@ -410,4 +432,40 @@ void PongStepper::stop()
 bool PongStepper::isRunning()
 {
     return !(_speed == 0.0 && _targetPos == _currentPos && !this->shouldClear);
+}
+
+int64_t PongStepper::runAsync()
+{
+    if(this->shouldClear) {
+       this->clear();
+       this->updateDirection();
+
+       return this->_stepInterval > 0 ? this->_stepInterval - 10 : 0;
+    }
+    else 
+    {
+        if (_direction == true)
+        {
+            // Clockwise
+            _currentPos += 1;
+        }
+        else
+        {
+            // Anticlockwise
+            _currentPos -= 1;
+        }
+        step(_currentPos);
+
+        _lastStepTime = time_us_32();
+
+        computeNewSpeed();
+
+        return 10;
+    }
+}
+
+int64_t alarm_callback(alarm_id_t id, void *user_data)
+{
+    auto *stepper = static_cast<PongStepper*>(user_data);
+    return stepper->runAsync();
 }
