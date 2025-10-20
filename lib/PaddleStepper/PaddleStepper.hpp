@@ -185,7 +185,7 @@ public:
     void    move(long relative);
 
     long stepperStepsToStop = 0;
-    alarm_pool_t *pool = NULL;
+    spin_lock_t *lock = NULL;
 
 protected:
     /// Forces the library to compute a new instantaneous speed and set that as
@@ -284,6 +284,8 @@ private:      // 0, 1, 2, 4, 8, See MotorInterfaceType
     PaddleSubscriber *subscriber = NULL;
 
     bool shouldClear = false;
+
+    
 };
 
 int64_t paddle_alarm_callback(alarm_id_t id, void *user_data);
