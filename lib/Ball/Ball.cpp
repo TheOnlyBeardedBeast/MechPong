@@ -27,8 +27,8 @@ void Ball::init(size_t stepX, size_t dirX, size_t stepY, size_t dirY)
     this->_xStepper = new PongStepper(stepX, dirX);
     this->_yStepper = new PongStepper(stepY, dirY);
 
-    this->_xStepper->pool = alarm_pool_create(0,4);
-    this->_yStepper->pool = alarm_pool_create(1,4);
+    this->_xStepper->lock = spin_lock_instance(0);
+    this->_yStepper->lock = spin_lock_instance(0);
 
     this->_xStepper->setMaxSpeed(MAX_SPEED);
     this->_yStepper->setMaxSpeed(MAX_SPEED);

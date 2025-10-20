@@ -179,7 +179,7 @@ public:
     void externalUpdateDirection(bool dir);
     void externalStep(long step);
     long stepperStepsToStop = 0;
-    alarm_pool_t *pool = NULL;
+    spin_lock_t *lock = NULL;
 
 protected:
     /// Forces the library to compute a new instantaneous speed and set that as

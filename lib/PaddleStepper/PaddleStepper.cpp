@@ -19,6 +19,7 @@ void PaddleStepper::moveTo(long absolute)
 void PaddleStepper::moveToAsync(long absolute)
 {
     uint32_t save = save_and_disable_interrupts();
+    spin_lock_blocking(this->lock);
     bool shouldStart = !this->isRunning();
 
     if (_targetPos != absolute)
@@ -30,7 +31,7 @@ void PaddleStepper::moveToAsync(long absolute)
         {
             this->updateDirection();
 
-            alarm_pool_add_alarm_in_us(this->pool,this->_stepInterval,paddle_alarm_callback,this,true);
+            add_alarm_in_us(this->_stepInterval,paddle_alarm_callback,this,true);
         }
 
         if(this->subscriber != NULL)
@@ -39,7 +40,8 @@ void PaddleStepper::moveToAsync(long absolute)
         }
     }
 
-    restore_interrupts(save);
+    // restore_interrupts(save);
+    spin_unlock(this->lock, save);
 }
 
 void PaddleStepper::updateDirection()
