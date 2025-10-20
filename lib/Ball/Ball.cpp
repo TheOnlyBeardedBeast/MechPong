@@ -7,14 +7,14 @@
 
 Ball *Ball::instance;
 
-int mapAngleToSpeedX(int angle)
+int mapAngleToSpeedX(int angle, int spped = MAX_SPEED)
 {
-    return static_cast<int>((abs(fastSin(angle))) * MAX_SPEED);
+    return static_cast<int>((abs(fastSin(angle))) * spped);
 }
 
-int mapAngleToSpeedY(int angle)
+int mapAngleToSpeedY(int angle, int spped = MAX_SPEED)
 {
-    return static_cast<int>((abs(fastCos(angle))) * MAX_SPEED);
+    return static_cast<int>((abs(fastCos(angle))) * spped);
 }
 
 void Ball::init(size_t stepX, size_t dirX, size_t stepY, size_t dirY)
@@ -155,8 +155,8 @@ void Ball::shootAngle(float angleRadians, bool isBounce)
     // int newX = constrain(ballPos.x + round(dx * t), 0, GAMEPLAY_AREA_X);
     int newY = constrain(ballPos.y + round(dy * t), 0, GAMEPLAY_AREA_Y);
 
-    this->_xStepper->setMaxSpeed(mapAngleToSpeedX(this->lastAngle));
-    this->_yStepper->setMaxSpeed(mapAngleToSpeedY(this->lastAngle));
+    this->_xStepper->setMaxSpeed(mapAngleToSpeedX(this->lastAngle,this->_maxSpeed));
+    this->_yStepper->setMaxSpeed(mapAngleToSpeedY(this->lastAngle,this->_maxSpeed));
 
     if (!isBounce)
     {
@@ -241,4 +241,19 @@ Ball::~Ball()
 {
     delete this->_xStepper;
     delete this->_yStepper;
+}
+
+void Ball::increaseSpeed()
+{
+    if(_maxSpeed == MAX_SPEED)
+    {
+        return;
+    }
+
+    this->_maxSpeed += SPEED_UPDATE;
+}
+
+void Ball::resetGameSpeed()
+{
+    this->_maxSpeed = MAX_SPEED;
 }

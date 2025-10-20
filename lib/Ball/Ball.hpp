@@ -90,9 +90,13 @@ public:
     PongStepper *_xStepper = NULL;
     Switch *limitSwitchX = NULL;
     Switch *limitSwitchY = NULL;
+
+    void increaseSpeed();
+    void resetGameSpeed();
 private:
     PongStepper *_yStepper = NULL;
 
     int dx;
     int dy;
+    int _maxSpeed = START_SPEED;
 };

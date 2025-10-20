@@ -320,6 +320,7 @@ void Pong::serveMatch()
         
             float angle = ((modifier * 5.f) + (this->shooter == Player::Player1 ? 180.f : 0.0f));
 
+        this->ball->resetGameSpeed();
         this->ball->shootDeg(angle,false);
         this->sound->trackPlayPoly(2);
         this->gameState = GameState::SERVE_PROGRESS;
@@ -359,6 +360,8 @@ void Pong::runMatch()
 
         if (shot != 0)
         {
+            this->ball->increaseSpeed();
+
             if (nextShooter == Player::Player2)
             {
                 shot = map(shot, MIN_ANGLE, MAX_ANGLE, MAX_ANGLE, MIN_ANGLE);

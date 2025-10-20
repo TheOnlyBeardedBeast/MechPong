@@ -12,6 +12,7 @@ void setup() {
   sleep_ms(1000);
 
   game = new Pong();
+  pinMode(8,OUTPUT);
 
   pinMode(LED_BUILTIN,OUTPUT);
   digitalWrite(LED_BUILTIN,HIGH);

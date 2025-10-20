@@ -14,6 +14,11 @@
 const uint8_t MICRO_STEP = 2;
 
 constexpr uint16_t MAX_SPEED = 1750 * MICRO_STEP;
+constexpr uint16_t START_SPEED_DIFF = 250 * MICRO_STEP;
+constexpr uint16_t START_SPEED = MAX_SPEED - START_SPEED_DIFF;
+constexpr uint16_t SPEED_UPDATE_COUNT = 10;
+constexpr uint16_t SPEED_UPDATE = START_SPEED_DIFF / SPEED_UPDATE_COUNT;
+
 constexpr uint32_t BALL_ACCELERATION = 20000 * MICRO_STEP;
 constexpr uint32_t PADDLE_ACCELERATION = 20000 * MICRO_STEP;
 constexpr uint16_t PADDLE_MAX_SPEED = 1400 * MICRO_STEP;

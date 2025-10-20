@@ -121,27 +121,42 @@ void Paddle::isrReadEncoder0()
     // Paddle::instances[0]->last_pulse_time = now;
 
     // Paddle::instances[0]->pulse_history >>= 1;
-    // if (dt <= 5000)  // 5 ms threshold
+    // if (dt <= 10000)  // 5 ms threshold
     //     Paddle::instances[0]->pulse_history |= 0x80;  // set MSB
     // // else leave MSB = 0
 
-    // if (Paddle::instances[0]->pulse_history == 0xFF)
-    // {
-        if (b == LOW)
-        {
-            Paddle::instances[0]->increment();
-        }
-        else
-        {
-            Paddle::instances[0]->decrement();
-        }
+    // if (Paddle::instances[0]->pulse_history != 0xFF) {
+    //     return;
     // }
+
+    if (b == LOW)
+    {
+        Paddle::instances[0]->increment();
+    }
+    else
+    {
+        Paddle::instances[0]->decrement();
+    }
+
 }
 
 void Paddle::isrReadEncoder01()
 {
 
     int a = Paddle::instances[0]->readA();
+
+    // uint32_t now = time_us_32();
+    // uint32_t dt = now - Paddle::instances[0]->last_pulse_time;
+    // Paddle::instances[0]->last_pulse_time = now;
+
+    // Paddle::instances[0]->pulse_history >>= 1;
+    // if (dt <= 10000)  // 5 ms threshold
+    //     Paddle::instances[0]->pulse_history |= 0x80;  // set MSB
+    // // else leave MSB = 0
+
+    // if (Paddle::instances[0]->pulse_history != 0xFF) {
+    //     return;
+    // }
 
     if (a == HIGH)
     {
@@ -162,26 +177,42 @@ void Paddle::isrReadEncoder10()
     // Paddle::instances[1]->last_pulse_time = now;
 
     // Paddle::instances[1]->pulse_history >>= 1;
-    // if (dt <= 5000)  // 5 ms threshold
+    // if (dt <= 10000)  // 10 ms threshold
     //     Paddle::instances[1]->pulse_history |= 0x80;  // set MSB
     // // else leave MSB = 0
 
-    // if (Paddle::instances[1]->pulse_history == 0xFF)
+    // if (Paddle::instances[1]->pulse_history != 0xFF)
     // {
-        if (b == LOW)
-        {
-            Paddle::instances[1]->increment();
-        }
-        else
-        {
-            Paddle::instances[1]->decrement();
-        }
+    //     return;
     // }
+
+    if (b == LOW)
+    {
+        Paddle::instances[1]->increment();
+    }
+    else
+    {
+        Paddle::instances[1]->decrement();
+    }
 }
 
 void Paddle::isrReadEncoder11()
 {
     int a = Paddle::instances[1]->readA();
+
+    // uint32_t now = time_us_32();
+    // uint32_t dt = now - Paddle::instances[1]->last_pulse_time;
+    // Paddle::instances[1]->last_pulse_time = now;
+
+    // Paddle::instances[1]->pulse_history >>= 1;
+    // if (dt <= 10000)  // 10 ms threshold
+    //     Paddle::instances[1]->pulse_history |= 0x80;  // set MSB
+    // // else leave MSB = 0
+
+    // if (Paddle::instances[1]->pulse_history != 0xFF)
+    // {
+    //     return;
+    // }
 
     if (a == HIGH)
     {
@@ -409,7 +440,7 @@ byte Paddle::tryShoot(long ballPos, long ballTarget, long possibleHitOffset)
     long paddlePos = this->getCenterRelativePosition();
     long paddleStopSteps = this->stepsToQuickStop();
 
-    long hitzone = PADDLE_WIDTH_HALF + BALL_WIDTH_HALF;
+    long hitzone = PADDLE_WIDTH_HALF;
 
     // Paddle edges - current and future (after stop steps)
     long paddleLeftEdge = paddlePos - PADDLE_WIDTH_HALF;
