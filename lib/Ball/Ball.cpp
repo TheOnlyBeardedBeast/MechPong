@@ -206,9 +206,10 @@ long Ball::getY()
 
 long Ball::stepsToStopX()
 {
-    long speed = this->_xStepper->speed();
+    // long speed = this->_xStepper->speed();
 
-    return (long)((speed * speed) / (BALL_ACCELERATION << 1));
+    // return (long)((speed * speed) / (BALL_ACCELERATION << 1));
+    return this->_xStepper->stepperStepsToStop;
 }
 
 void Ball::printInfo()
