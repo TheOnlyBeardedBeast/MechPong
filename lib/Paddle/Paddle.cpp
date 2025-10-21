@@ -116,8 +116,30 @@ void Paddle::isrReadEncoder0()
 {
     int b = Paddle::instances[0]->readB();
 
-    // uint32_t now = time_us_32();
-    // uint32_t dt = now - Paddle::instances[0]->last_pulse_time;
+    auto& instance = *Paddle::instances[0];
+
+    uint32_t now = time_us_32();
+    uint32_t dt = now - instance.last_pulse_time;
+    instance.last_pulse_time = now;
+
+    if(dt > 250000)
+    {
+        return;
+    }
+    
+    instance.pulseSum -= instance.pulse_history[instance.pulseIdx];
+
+    instance.pulse_history[instance.pulseIdx] = dt;
+    instance.pulseSum += dt;
+
+    instance.pulseIdx = (instance.pulseIdx + 1) & 15;
+
+    uint16_t avg = instance.pulseSum >> 4;
+
+    if(avg > 60000)
+    {
+        return;
+    }
     // Paddle::instances[0]->last_pulse_time = now;
 
     // Paddle::instances[0]->pulse_history >>= 1;
@@ -145,18 +167,30 @@ void Paddle::isrReadEncoder01()
 
     int a = Paddle::instances[0]->readA();
 
-    // uint32_t now = time_us_32();
-    // uint32_t dt = now - Paddle::instances[0]->last_pulse_time;
-    // Paddle::instances[0]->last_pulse_time = now;
+    auto& instance = *Paddle::instances[0];
 
-    // Paddle::instances[0]->pulse_history >>= 1;
-    // if (dt <= 10000)  // 5 ms threshold
-    //     Paddle::instances[0]->pulse_history |= 0x80;  // set MSB
-    // // else leave MSB = 0
+    uint32_t now = time_us_32();
+    uint32_t dt = now - instance.last_pulse_time;
+    instance.last_pulse_time = now;
 
-    // if (Paddle::instances[0]->pulse_history != 0xFF) {
-    //     return;
-    // }
+    if(dt > 250000)
+    {
+        return;
+    }
+    
+    instance.pulseSum -= instance.pulse_history[instance.pulseIdx];
+
+    instance.pulse_history[instance.pulseIdx] = dt;
+    instance.pulseSum += dt;
+
+    instance.pulseIdx = (instance.pulseIdx + 1) & 15;
+
+    uint16_t avg = instance.pulseSum >> 4;
+
+    if(avg > 60000)
+    {
+        return;
+    }
 
     if (a == HIGH)
     {
@@ -172,19 +206,30 @@ void Paddle::isrReadEncoder10()
 {
     int b = Paddle::instances[1]->readB();
 
-    // uint32_t now = time_us_32();
-    // uint32_t dt = now - Paddle::instances[1]->last_pulse_time;
-    // Paddle::instances[1]->last_pulse_time = now;
+    auto& instance = *Paddle::instances[1];
 
-    // Paddle::instances[1]->pulse_history >>= 1;
-    // if (dt <= 10000)  // 10 ms threshold
-    //     Paddle::instances[1]->pulse_history |= 0x80;  // set MSB
-    // // else leave MSB = 0
+    uint32_t now = time_us_32();
+    uint32_t dt = now - instance.last_pulse_time;
+    instance.last_pulse_time = now;
 
-    // if (Paddle::instances[1]->pulse_history != 0xFF)
-    // {
-    //     return;
-    // }
+    if(dt > 250000)
+    {
+        return;
+    }
+    
+    instance.pulseSum -= instance.pulse_history[instance.pulseIdx];
+
+    instance.pulse_history[instance.pulseIdx] = dt;
+    instance.pulseSum += dt;
+
+    instance.pulseIdx = (instance.pulseIdx + 1) & 15;
+
+    uint16_t avg = instance.pulseSum >> 4;
+
+    if(avg > 60000)
+    {
+        return;
+    }
 
     if (b == LOW)
     {
@@ -200,19 +245,30 @@ void Paddle::isrReadEncoder11()
 {
     int a = Paddle::instances[1]->readA();
 
-    // uint32_t now = time_us_32();
-    // uint32_t dt = now - Paddle::instances[1]->last_pulse_time;
-    // Paddle::instances[1]->last_pulse_time = now;
+    auto& instance = *Paddle::instances[1];
 
-    // Paddle::instances[1]->pulse_history >>= 1;
-    // if (dt <= 10000)  // 10 ms threshold
-    //     Paddle::instances[1]->pulse_history |= 0x80;  // set MSB
-    // // else leave MSB = 0
+    uint32_t now = time_us_32();
+    uint32_t dt = now - instance.last_pulse_time;
+    instance.last_pulse_time = now;
 
-    // if (Paddle::instances[1]->pulse_history != 0xFF)
-    // {
-    //     return;
-    // }
+    if(dt > 250000)
+    {
+        return;
+    }
+    
+    instance.pulseSum -= instance.pulse_history[instance.pulseIdx];
+
+    instance.pulse_history[instance.pulseIdx] = dt;
+    instance.pulseSum += dt;
+
+    instance.pulseIdx = (instance.pulseIdx + 1) & 15;
+
+    uint16_t avg = instance.pulseSum >> 4;
+
+    if(avg > 60000)
+    {
+        return;
+    }
 
     if (a == HIGH)
     {
