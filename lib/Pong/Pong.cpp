@@ -409,8 +409,12 @@ void Pong::runMatch()
     // BOUNCE
     if (
         (y >= GAMEPLAY_AREA_Y || y <= 0) 
-        && ((x > (BALL_WIDTH * 3) && this->shooter == Player::Player2) 
-        || (x < GAMEPLAY_AREA_X - (BALL_WIDTH * 3) && this->shooter == Player::Player1))
+        // SINKING BALL CORENRS
+        // && (
+        //     (this->shooter == Player::Player2 && x < GAMEPLAY_AREA_X - BALL_SHOOT_OFFSET - this->ball->stepsToStopX())
+        //     ||
+        //     (this->shooter == Player::Player1 && x > BALL_SHOOT_OFFSET + this->ball->stepsToStopX())
+        // )
     )
     {
         ball->bounce();
