@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include <PaddleSubscriber.hpp>
+#include <TimerPhase.hpp>
 
 class PongStepper : public PaddleSubscriber
 {
@@ -180,6 +181,8 @@ public:
     void externalStep(long step);
     long stepperStepsToStop = 0;
     spin_lock_t *lock = NULL;
+    TimerPhase phase = TimerPhase::STEP;
+    repeating_timer_t* timer;
 
 protected:
     /// Forces the library to compute a new instantaneous speed and set that as
@@ -282,4 +285,4 @@ private: // 0, 1, 2, 4, 8, See MotorInterfaceType
     bool shouldClear = false;
 };
 
-int64_t alarm_callback(alarm_id_t id, void *user_data);
+bool alarm_callback(repeating_timer_t *rt);

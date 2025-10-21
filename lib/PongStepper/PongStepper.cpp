@@ -27,7 +27,7 @@ void PongStepper::moveToAsync(long absolute)
         {
             this->updateDirection();
 
-            add_alarm_in_us(this->_stepInterval,alarm_callback,this,true);
+            add_repeating_timer_us(this->_stepInterval,alarm_callback,this,this->timer);
         }
     }
 
@@ -440,36 +440,68 @@ bool PongStepper::isRunning()
 
 int64_t PongStepper::runAsync()
 {
-    if(this->shouldClear) {
-       this->clear();
-       this->updateDirection();
 
-       return this->_stepInterval > 0 ? this->_stepInterval - 10 : 0;
-    }
-    else 
+    switch (this->phase)
     {
-        if (_direction == true)
+        case TimerPhase::STEP:
         {
-            // Clockwise
-            _currentPos += 1;
+            if (_direction == true)
+            {
+                // Clockwise
+                _currentPos += 1;
+            }
+            else
+            {
+                // Anticlockwise
+                _currentPos -= 1;
+            }
+            step(_currentPos);
+
+            _lastStepTime = time_us_32();
+
+            computeNewSpeed();
+
+            this->phase = TimerPhase::CLEAR;
+            return 20;
         }
-        else
+        case TimerPhase::CLEAR:
         {
-            // Anticlockwise
-            _currentPos -= 1;
+            this->clear();
+
+            if(this->_futureDirection != this->_direction)
+            {
+                this->phase = TimerPhase::UPDATE_DIRECTION;
+
+                return 20;
+            }
+
+            this->phase = TimerPhase::STEP;
+
+            return max(0,this->_stepInterval - 20);
         }
-        step(_currentPos);
+        case TimerPhase::UPDATE_DIRECTION:
+        {
+            this->updateDirection();
 
-        _lastStepTime = time_us_32();
+            this->phase = TimerPhase::STEP;
 
-        computeNewSpeed();
-
-        return 10;
+            return max(0,this->_stepInterval - 40);
+        }
+        default:
+            return 0;
     }
 }
 
-int64_t alarm_callback(alarm_id_t id, void *user_data)
+bool alarm_callback(repeating_timer_t *rt)
 {
-    auto *stepper = static_cast<PongStepper*>(user_data);
-    return stepper->runAsync();
+    auto *stepper = static_cast<PongStepper*>(rt->user_data);
+    int64_t interval = stepper->runAsync();
+
+    if(interval > 0){
+        add_repeating_timer_us(interval,alarm_callback,rt->user_data,stepper->timer);
+    } else {
+        stepper->timer = NULL;
+    }
+
+    return false;
 }
