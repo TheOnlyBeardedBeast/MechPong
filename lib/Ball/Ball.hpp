@@ -88,13 +88,14 @@ public:
     ~Ball();
 
     PongStepper *_xStepper = NULL;
+    PongStepper *_yStepper = NULL;
     Switch *limitSwitchX = NULL;
     Switch *limitSwitchY = NULL;
 
     void increaseSpeed();
     void resetGameSpeed();
 private:
-    PongStepper *_yStepper = NULL;
+    
 
     int dx;
     int dy;

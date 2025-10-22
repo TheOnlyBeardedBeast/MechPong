@@ -175,6 +175,7 @@ public:
     void externalUpdateDirection(bool dir);
     void externalStep(long step);
     long stepperStepsToStop = 0;
+    void initPio(PIO pio, uint sm, uint offset);
 
 protected:
     /// Forces the library to compute a new instantaneous speed and set that as
@@ -274,5 +275,9 @@ private: // 0, 1, 2, 4, 8, See MotorInterfaceType
     /// anticlockwise from the current position.
     void move(long relative);
 
-    bool shouldClear = false;
+    // bool shouldClear = false;
+
+    PIO _pio;          // which PIO (pio0 or pio1)
+    uint _sm;          // state machine index (0–3)
+    uint _pioOffset;   // program offset
 };

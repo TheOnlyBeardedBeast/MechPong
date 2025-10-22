@@ -1,4 +1,5 @@
 #include "Pong.hpp"
+#include <Pulse.hpp>
 
 Pong::Pong()
 {
@@ -8,12 +9,17 @@ Pong::Pong()
     this->sound = new WavTrigger();
     this->sound->start();
 
+    uint offset = pio_add_program(pio0, &pulse_program);
+
     this->ball = new Ball();
     this->ball->init(18,19,21,20);
     this->ball->instance = this->ball;
     this->ball->_xStepper->setCurrentPosition(-BALL_WIDTH_HALF);
     this->ball->limitSwitchX = new Switch(26);
     this->ball->limitSwitchY = new Switch(22);
+
+    this->ball->_xStepper->initPio(pio0,0,offset);
+    this->ball->_yStepper->initPio(pio0,1,offset);
 
     Paddle *paddle0 = new Paddle();
     paddle0->initializeStepper(4,5);

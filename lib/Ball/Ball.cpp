@@ -19,9 +19,9 @@ int mapAngleToSpeedY(int angle, int spped = MAX_SPEED)
 
 void Ball::init(size_t stepX, size_t dirX, size_t stepY, size_t dirY)
 {
-    pinMode(stepX, OUTPUT);
+    // pinMode(stepX, OUTPUT);
     pinMode(dirX, OUTPUT);
-    pinMode(stepY, OUTPUT);
+    // pinMode(stepY, OUTPUT);
     pinMode(dirY, OUTPUT);
 
     this->_xStepper = new PongStepper(stepX, dirX);
