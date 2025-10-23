@@ -9,7 +9,7 @@ Pong::Pong()
     this->sound = new WavTrigger();
     this->sound->start();
 
-    uint offset = pio_add_program(pio0, &pulse_program);
+    uint stepOffset = pio_add_program(pio0, &pulse_program);
 
     this->ball = new Ball();
     this->ball->init(18,19,21,20);
@@ -18,13 +18,14 @@ Pong::Pong()
     this->ball->limitSwitchX = new Switch(26);
     this->ball->limitSwitchY = new Switch(22);
 
-    this->ball->_xStepper->initPio(pio0,0,offset);
-    this->ball->_yStepper->initPio(pio0,1,offset);
+    this->ball->_xStepper->initStepPio(pio0,0,stepOffset);
+    this->ball->_yStepper->initStepPio(pio0,1,stepOffset);
 
     Paddle *paddle0 = new Paddle();
     paddle0->initializeStepper(4,5);
     paddle0->initializeEncoder(1,0);
     paddle0->_stepper->setCurrentPosition(-BALL_WIDTH);
+    paddle0->_stepper->initStepPio(pio0,2,stepOffset);
     paddle0->limitSwitch = new Switch(3);
 
     PongPlayer *player0 = new PongPlayer(paddle0, new Switch(2), new Switch(2));
@@ -33,6 +34,7 @@ Pong::Pong()
     paddle1->initializeStepper(10,11);
     paddle1->initializeEncoder(14,15);
     paddle1->_stepper->setCurrentPosition(-BALL_WIDTH);
+    paddle1->_stepper->initStepPio(pio0,3,stepOffset);
     paddle1->limitSwitch = new Switch(12);
 
     PongPlayer *player1 = new PongPlayer(paddle1, new Switch(13), new Switch(13));

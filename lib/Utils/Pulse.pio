@@ -1,0 +1,7 @@
+.program pulse
+; Wait for trigger (any value pushed to TX FIFO)
+loop:
+    pull block        ; wait for new trigger value
+    set pins, 1 [4]   ; pin HIGH 
+    set pins, 0       ; pin LOW
+    jmp loop          ; wait again

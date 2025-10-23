@@ -307,7 +307,7 @@ float PongStepper::speed()
 void PongStepper::step(long step)
 {
     (void)(step); // Unused
-    pio_sm_put_blocking(_pio, _sm, 1);
+    pio_sm_put_blocking(_stepPio, _stepSm, 1);
     return;
 
 
@@ -336,11 +336,11 @@ void PongStepper::externalStep(long step)
     this->step(this->_currentPos);
 }
 
-void PongStepper::initPio(PIO pio, uint sm, uint offset)
+void PongStepper::initStepPio(PIO pio, uint sm, uint offset)
 {
-    _pio = pio;
-    _sm = sm;
-    _pioOffset = offset;
+    _stepPio = pio;
+    _stepSm = sm;
+    _StepPioOffset = offset;
     uint8_t _pinStep = _pin[0]; // assuming _pin[0] is your step pin
 
     // Configure and initialize state machine
@@ -350,7 +350,7 @@ void PongStepper::initPio(PIO pio, uint sm, uint offset)
     pio_gpio_init(pio, _pinStep);
     pio_sm_set_consecutive_pindirs(pio, sm, _pinStep, 1, true);
 
-    sm_config_set_clkdiv(&c, 30.0f);
+    sm_config_set_clkdiv(&c, 75.0f);
 
     pio_sm_init(pio, sm, offset, &c);
     pio_sm_set_enabled(pio, sm, true);

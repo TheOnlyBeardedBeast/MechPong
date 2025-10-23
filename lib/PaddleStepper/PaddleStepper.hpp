@@ -182,6 +182,8 @@ public:
     /// anticlockwise from the current position.
     void    move(long relative);
 
+    void initStepPio(PIO pio, uint sm, uint offset);
+
     long stepperStepsToStop = 0;
 
 protected:
@@ -281,4 +283,8 @@ private:      // 0, 1, 2, 4, 8, See MotorInterfaceType
     PaddleSubscriber *subscriber = NULL;
 
     bool shouldClear = false;
+
+    PIO _stepPio;          // which PIO (pio0 or pio1)
+    uint _stepSm;          // state machine index (0–3)
+    uint _StepPioOffset;   // program offset
 };

@@ -1,5 +1,6 @@
 #include "PaddleStepper.hpp"
 #include "Configuration.hpp"
+#include <Pulse.hpp>
 
 void PaddleStepper::moveTo(long absolute)
 {
@@ -35,13 +36,33 @@ void PaddleStepper::move(long relative)
     moveTo(_currentPos + relative);
 }
 
+void PaddleStepper::initStepPio(PIO pio, uint sm, uint offset)
+{
+    _stepPio = pio;
+    _stepSm = sm;
+    _StepPioOffset = offset;
+    uint8_t _pinStep = _pin[0]; // assuming _pin[0] is your step pin
+
+    // Configure and initialize state machine
+    pio_sm_config c = pulse_program_get_default_config(offset);
+    sm_config_set_set_pins(&c, _pinStep, 1);
+
+    pio_gpio_init(pio, _pinStep);
+    pio_sm_set_consecutive_pindirs(pio, sm, _pinStep, 1, true);
+
+    sm_config_set_clkdiv(&c, 75.0f);
+
+    pio_sm_init(pio, sm, offset, &c);
+    pio_sm_set_enabled(pio, sm, true);
+}
+
 // Implements steps according to the current step interval
 // You must call this at least once per step
 // returns true if a step occurred
 boolean PaddleStepper::runSpeed()
 {
     // Dont do anything unless we actually have a step interval
-    if (!_stepInterval && !this->shouldClear)
+    if (!_stepInterval) // && !this->shouldClear
     {
         return false;
     }
@@ -55,15 +76,15 @@ boolean PaddleStepper::runSpeed()
         return false;
     }
 
-    if (this->shouldClear)
-    {
-        if (delta >= this->_minPulseWidth)
-        {
-            this->clear();
-        }
+    // if (this->shouldClear)
+    // {
+    //     if (delta >= this->_minPulseWidth)
+    //     {
+    //         this->clear();
+    //     }
 
-        return false;
-    }
+    //     return false;
+    // }
 
     if (delta >= _stepInterval)
     {
@@ -297,13 +318,15 @@ float PaddleStepper::speed()
 void PaddleStepper::step(long step)
 {
     (void)(step); // Unused
+    pio_sm_put_blocking(_stepPio, _stepSm, 1);
+    return;
 
     // _pin[0] is step, _pin[1] is direction
 
     // digitalWrite(this->_pin[0], HIGH);
-    sio_hw->gpio_set = (1 << this->_pin[0]);
+    // sio_hw->gpio_set = (1 << this->_pin[0]);
 
-    this->shouldClear = true;
+    // this->shouldClear = true;
 
     // Depracted
     // if (this->subscriber != NULL)

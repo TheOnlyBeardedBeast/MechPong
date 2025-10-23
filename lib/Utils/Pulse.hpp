@@ -13,22 +13,21 @@
 // ----- //
 
 #define pulse_wrap_target 0
-#define pulse_wrap 4
+#define pulse_wrap 3
 
 static const uint16_t pulse_program_instructions[] = {
             //     .wrap_target
     0x80a0, //  0: pull   block                      
-    0xe001, //  1: set    pins, 1                    
-    0xbf42, //  2: nop                           [31]
-    0xe000, //  3: set    pins, 0                    
-    0x0000, //  4: jmp    0                          
+    0xe901, //  1: set    pins, 1                [9] 
+    0xe000, //  2: set    pins, 0                    
+    0x0000, //  3: jmp    0                          
             //     .wrap
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program pulse_program = {
     .instructions = pulse_program_instructions,
-    .length = 5,
+    .length = 4,
     .origin = -1,
 };
 

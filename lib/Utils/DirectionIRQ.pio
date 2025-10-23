@@ -1,0 +1,11 @@
+.program direction_irq
+; Wait for trigger (any value pushed to TX FIFO)
+loop:
+    pull block        ; wait for new trigger
+    out y, 30
+    nop [18]
+    out pins, 1        ; write x to pins
+delay_loop:
+    jmp y--, delay_loop    ; wait untl y is 0
+    irq 0
+    jmp loop          ; wait again

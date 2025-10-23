@@ -8,6 +8,8 @@ bool Paddle::attached = false;
 
 Paddle::Paddle()
 {
+    this->ptA = new PulseTracker();
+    this->ptB = new PulseTracker();
 }
 
 void Paddle::initializeEncoder(int A, int B)
@@ -116,27 +118,20 @@ void Paddle::isrReadEncoder0()
 {
     int b = Paddle::instances[0]->readB();
 
-    auto& instance = *Paddle::instances[0];
+    auto& instance = *Paddle::instances[0]->ptA;
 
     uint32_t now = time_us_32();
-    uint32_t dt = now - instance.last_pulse_time;
-    instance.last_pulse_time = now;
+    uint32_t dt = now - instance.getLastPulseTime();
+    instance.setPulseTime(now);
 
     if(dt > 250000)
     {
         return;
     }
-    
-    instance.pulseSum -= instance.pulse_history[instance.pulseIdx];
 
-    instance.pulse_history[instance.pulseIdx] = dt;
-    instance.pulseSum += dt;
+    uint16_t avg = instance.addPulse(dt);
 
-    instance.pulseIdx = (instance.pulseIdx + 1) & 15;
-
-    uint16_t avg = instance.pulseSum >> 4;
-
-    if(avg > 60000)
+    if(avg > 80000)
     {
         return;
     }
@@ -167,27 +162,20 @@ void Paddle::isrReadEncoder01()
 
     int a = Paddle::instances[0]->readA();
 
-    auto& instance = *Paddle::instances[0];
+    auto& instance = *Paddle::instances[0]->ptB;
 
     uint32_t now = time_us_32();
-    uint32_t dt = now - instance.last_pulse_time;
-    instance.last_pulse_time = now;
+    uint32_t dt = now - instance.getLastPulseTime();
+    instance.setPulseTime(now);
 
     if(dt > 250000)
     {
         return;
     }
-    
-    instance.pulseSum -= instance.pulse_history[instance.pulseIdx];
 
-    instance.pulse_history[instance.pulseIdx] = dt;
-    instance.pulseSum += dt;
+    uint16_t avg = instance.addPulse(dt);
 
-    instance.pulseIdx = (instance.pulseIdx + 1) & 15;
-
-    uint16_t avg = instance.pulseSum >> 4;
-
-    if(avg > 60000)
+    if(avg > 80000)
     {
         return;
     }
@@ -206,27 +194,20 @@ void Paddle::isrReadEncoder10()
 {
     int b = Paddle::instances[1]->readB();
 
-    auto& instance = *Paddle::instances[1];
+    auto& instance = *Paddle::instances[1]->ptA;
 
     uint32_t now = time_us_32();
-    uint32_t dt = now - instance.last_pulse_time;
-    instance.last_pulse_time = now;
+    uint32_t dt = now - instance.getLastPulseTime();
+    instance.setPulseTime(now);
 
     if(dt > 250000)
     {
         return;
     }
-    
-    instance.pulseSum -= instance.pulse_history[instance.pulseIdx];
 
-    instance.pulse_history[instance.pulseIdx] = dt;
-    instance.pulseSum += dt;
+    uint16_t avg = instance.addPulse(dt);
 
-    instance.pulseIdx = (instance.pulseIdx + 1) & 15;
-
-    uint16_t avg = instance.pulseSum >> 4;
-
-    if(avg > 60000)
+    if(avg > 80000)
     {
         return;
     }
@@ -245,27 +226,20 @@ void Paddle::isrReadEncoder11()
 {
     int a = Paddle::instances[1]->readA();
 
-    auto& instance = *Paddle::instances[1];
+    auto& instance = *Paddle::instances[1]->ptB;
 
     uint32_t now = time_us_32();
-    uint32_t dt = now - instance.last_pulse_time;
-    instance.last_pulse_time = now;
+    uint32_t dt = now - instance.getLastPulseTime();
+    instance.setPulseTime(now);
 
     if(dt > 250000)
     {
         return;
     }
-    
-    instance.pulseSum -= instance.pulse_history[instance.pulseIdx];
 
-    instance.pulse_history[instance.pulseIdx] = dt;
-    instance.pulseSum += dt;
+    uint16_t avg = instance.addPulse(dt);
 
-    instance.pulseIdx = (instance.pulseIdx + 1) & 15;
-
-    uint16_t avg = instance.pulseSum >> 4;
-
-    if(avg > 60000)
+    if(avg > 80000)
     {
         return;
     }
