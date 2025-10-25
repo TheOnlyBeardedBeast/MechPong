@@ -256,5 +256,11 @@ void Ball::increaseSpeed()
 
 void Ball::resetGameSpeed()
 {
+    if(SPEED_SCALING)
+    {
+        this->_maxSpeed = START_SPEED;
+        return;
+    }
+
     this->_maxSpeed = MAX_SPEED;
 }

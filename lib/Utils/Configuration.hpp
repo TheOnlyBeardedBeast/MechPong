@@ -13,6 +13,7 @@
 // 6-----1.5875m/s - 3,175step/s
 const uint8_t MICRO_STEP = 2;
 
+constexpr bool SPEED_SCALING = false;
 constexpr uint16_t MAX_SPEED = 1750 * MICRO_STEP;
 constexpr uint16_t START_SPEED_DIFF = 250 * MICRO_STEP;
 constexpr uint16_t START_SPEED = MAX_SPEED - START_SPEED_DIFF;
