@@ -80,8 +80,8 @@ void Ball::calibrate()
         this->_xStepper->runSpeed();
     }
 
-    this->_xStepper->setCurrentPosition(-BALL_WIDTH_HALF);
-    this->_yStepper->setCurrentPosition(-BALL_WIDTH_HALF);
+    this->_xStepper->setCurrentPosition(-(BALL_WIDTH_HALF));
+    this->_yStepper->setCurrentPosition(-(BALL_WIDTH_HALF>>1));
 }
 
 void Ball::runCenter()

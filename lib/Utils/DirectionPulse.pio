@@ -1,0 +1,7 @@
+.program direction_pulse
+; Wait for trigger (any value pushed to TX FIFO)
+loop:
+    pull block        ; wait for new trigger
+    nop [31]          ; wait 16us
+    out pins, 1       ; write x to pins
+    jmp loop          ; wait again
